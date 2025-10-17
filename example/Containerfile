@@ -1,23 +1,13 @@
-# Builder stage: create a virtualenv and install all Python deps there
-FROM node:24-alpine3.22 AS builder
-
+FROM golang:1.25 AS builder
 WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm ci --production
-
-# Final runtime stage: copy the venv from the builder so all deps are present
-FROM registry.opencode.de/open-code/oci/nodejs:20
-
-WORKDIR /app
-
-# Copy application code
-COPY --from=builder --chown=53111:53111 /app /app
-COPY --chown=53111:53111 app.js /app/app.js
+COPY . .
+RUN go build -o myapp
 
 
-EXPOSE 8080
+FROM registry.opencode.de/open-code/oci/base:latest
 
-# Use gunicorn from the virtualenv to serve the Flask app
-CMD ["node", "/app/app.js"]
+COPY --from=builder --chown=53111:53111 /app/myapp /myapp
+
+USER 53111
+
+CMD [ "/myapp" ]

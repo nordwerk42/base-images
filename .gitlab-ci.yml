@@ -1,0 +1,240 @@
+# .gitlab-ci.yml
+stages:
+  - build
+  - test
+  - push
+  - manifest
+  - sign
+ 
+include:
+- remote: "https://gitlab.opencode.de/l3montree/devguard-ci-components/-/raw/v0.17.3/templates/dependency-risk-identification.yml"
+  inputs:
+    asset_name: "@opencode/projects/oci/assets/base"
+    token: "$DEVGUARD_TOKEN"
+    api_url: "https://api.devguard.opencode.de"
+    web_ui: "https://devguard.opencode.de"
+    artifact_name: "pkg:oci/base?repository_url=$CI_REGISTRY_IMAGE&tag=amd64&arch=amd64"
+    needs: [ "build: [amd64]" ]
+    dependencies: [ "build: [amd64]" ]
+    sbom_file: "build-base-amd64/base-amd64-sbom.json"
+
+- remote: "https://gitlab.opencode.de/l3montree/devguard-ci-components/-/raw/v0.17.3/templates/dependency-risk-identification.yml"
+  inputs:
+    asset_name: "@opencode/projects/oci/assets/base"
+    token: "$DEVGUARD_TOKEN"
+    api_url: "https://api.devguard.opencode.de"
+    web_ui: "https://devguard.opencode.de"
+    artifact_name: "pkg:oci/base?repository_url=$CI_REGISTRY_IMAGE&tag=arm64&arch=arm64"
+    needs: [ "build: [arm64]" ]
+    dependencies: [ "build: [arm64]" ]
+    sbom_file: "build-base-arm64/base-arm64-sbom.json"
+
+variables:
+  IMAGE_NAME: "$CI_REGISTRY_IMAGE"   # GitLab Container Registry
+
+.configure:
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan gitlab.opencode.de >> ~/.ssh/known_hosts
+    - mkdir -p /etc/nix
+    - |
+      cat > /etc/nix/nix.conf << 'EOF'
+      sandbox = false
+      filter-syscalls = false
+      experimental-features = nix-command flakes
+      EOF
+
+# Build base image
+build:
+  stage: build
+  extends: .configure
+  image:
+    name: nixos/nix@sha256:321bc7ebbbe17b68fd21ed162d096c058f55e209359286330f6e793cafab228e
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    # The build system is always x86_64-linux (the GitLab runner)
+    # We're building for different target architectures (amd64/arm64)
+    # Build the image using the flattened package name
+    - nix build -L ".#nodejs-base-${ARCH}" --no-update-lock-file
+    - IMAGE_TAR=$(readlink result)
+    - echo "Built ${ARCH} base image at $IMAGE_TAR"
+    - mkdir -p build-base-${ARCH}
+    - cp $IMAGE_TAR build-base-${ARCH}/base-${ARCH}.tar.gz
+    # Build the SBOM
+    - nix build -L ".#nodejs-base-${ARCH}-sbom" --no-update-lock-file
+    # Copy the SBOM to artifacts
+    - cp $(readlink result) build-base-${ARCH}/base-${ARCH}-sbom.json
+  artifacts:
+    paths:
+      - build-base-${ARCH}/base-${ARCH}.tar.gz
+      - build-base-${ARCH}/base-${ARCH}-sbom.json
+  parallel:
+    matrix:
+      - ARCH:
+        - amd64
+        - arm64
+# Build debug images (with busybox shell)
+build-debug:
+  stage: build
+  extends: .configure
+  image:
+    name: nixos/nix@sha256:321bc7ebbbe17b68fd21ed162d096c058f55e209359286330f6e793cafab228e
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    # Build the debug image using the flattened package name
+    - nix build -L ".#nodejs-base-${ARCH}-debug" --no-update-lock-file
+    - IMAGE_TAR=$(readlink result)
+    - echo "Built ${ARCH} debug base image at $IMAGE_TAR"
+    - mkdir -p build-base-${ARCH}-debug
+    - cp $IMAGE_TAR build-base-${ARCH}-debug/base-${ARCH}-debug.tar.gz
+  artifacts:
+    paths:
+      - build-base-${ARCH}-debug/base-${ARCH}-debug.tar.gz
+  parallel:
+    matrix:
+      - ARCH:
+        - amd64
+        - arm64
+
+# Push images
+push:
+  stage: push
+  image:
+    name: gcr.io/go-containerregistry/crane:debug@sha256:fbdf6d55c5ae90d9ae637b9bd9f10119496fdf18a3b5f9cd3078ae6044161c18
+    entrypoint: ["/bin/sh", "-c"]
+  dependencies:
+    - build
+  needs:
+    - build
+  script:
+    - crane auth login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - gunzip -c build-base-${ARCH}/base-${ARCH}.tar.gz > base-${ARCH}.tar
+    - crane push base-${ARCH}.tar $IMAGE_NAME:${ARCH}
+  parallel:
+    matrix:
+      - ARCH:
+        - amd64
+        - arm64
+  only:
+    - main
+
+# Push debug images
+push-debug:
+  stage: push
+  image:
+    name: gcr.io/go-containerregistry/crane:debug@sha256:fbdf6d55c5ae90d9ae637b9bd9f10119496fdf18a3b5f9cd3078ae6044161c18
+    entrypoint: ["/bin/sh", "-c"]
+  dependencies:
+    - build-debug
+  needs:
+    - build-debug
+  script:
+    - crane auth login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - gunzip -c build-base-${ARCH}-debug/base-${ARCH}-debug.tar.gz > base-${ARCH}-debug.tar
+    - crane push base-${ARCH}-debug.tar $IMAGE_NAME:${ARCH}-debug
+  parallel:
+    matrix:
+      - ARCH:
+        - amd64
+        - arm64
+  only:
+    - main
+
+# Create multi-arch manifests
+create_manifest:
+  stage: manifest
+  image: docker@sha256:24173119fa6d1b5b4a27ab164fa7863deb66574ee5b90fef3b85dc888ef1a7e6
+  dependencies: []
+  needs:
+    - push
+  before_script:
+    # Enable experimental features for docker manifest
+    - mkdir -p ~/.docker
+    - echo '{"experimental":"enabled"}' > ~/.docker/config.json
+  script:
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    # Create and push multi-arch manifest for base image
+    - docker manifest create $IMAGE_NAME:latest $IMAGE_NAME:amd64 $IMAGE_NAME:arm64
+    - docker manifest push $IMAGE_NAME:latest
+    - echo "Multi-arch manifest created at $IMAGE_NAME:latest"
+  only:
+    - main
+
+# Create multi-arch manifests for debug images
+create_manifest_debug:
+  stage: manifest
+  image: docker@sha256:24173119fa6d1b5b4a27ab164fa7863deb66574ee5b90fef3b85dc888ef1a7e6
+  dependencies: []
+  needs:
+    - push-debug
+  before_script:
+    # Enable experimental features for docker manifest
+    - mkdir -p ~/.docker
+    - echo '{"experimental":"enabled"}' > ~/.docker/config.json
+  script:
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    # Create and push multi-arch manifest for debug images
+    - docker manifest create $IMAGE_NAME:latest-debug $IMAGE_NAME:amd64-debug $IMAGE_NAME:arm64-debug
+    - docker manifest push $IMAGE_NAME:latest-debug
+    - echo "Multi-arch debug manifest created at $IMAGE_NAME:latest-debug"
+  only:
+    - main
+
+# sign all the images and manifests
+sign:
+  stage: sign
+  image:
+    name: ghcr.io/l3montree-dev/devguard/scanner:main-latest
+    entrypoint: [""]
+  script:
+    - devguard-scanner login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - devguard-scanner sign --token="$DEVGUARD_TOKEN" --assetName="@opencode/projects/oci/assets/base" --apiUrl="https://api.devguard.opencode.de" $IMAGE_NAME:$ARCH
+  parallel:
+    matrix:
+      - ARCH:
+        - amd64
+        - arm64
+  only:
+    - main
+
+# Sign debug images
+sign-debug:
+  stage: sign
+  image:
+    name: ghcr.io/l3montree-dev/devguard/scanner:main-latest
+    entrypoint: [""]
+  script:
+    - devguard-scanner login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - devguard-scanner sign --token="$DEVGUARD_TOKEN" --assetName="@opencode/projects/oci/assets/base" --apiUrl="https://api.devguard.opencode.de" $IMAGE_NAME:$ARCH-debug
+  parallel:
+    matrix:
+      - ARCH:
+        - amd64
+        - arm64
+  only:
+    - main
+
+sign-manifest:
+  stage: sign
+  image:
+    name: ghcr.io/l3montree-dev/devguard/scanner:main-latest
+    entrypoint: [""]
+  script:
+    - devguard-scanner login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - devguard-scanner sign --token="$DEVGUARD_TOKEN" $IMAGE_NAME:latest --assetName="@opencode/projects/oci/assets/base" --apiUrl="https://api.devguard.opencode.de"
+  only:
+    - main
+
+# Sign debug manifests
+sign-manifest-debug:
+  stage: sign
+  image:
+    name: ghcr.io/l3montree-dev/devguard/scanner:main-latest
+    entrypoint: [""]
+  script:
+    - devguard-scanner login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - devguard-scanner sign --token="$DEVGUARD_TOKEN" $IMAGE_NAME:latest-debug --assetName="@opencode/projects/oci/assets/base" --apiUrl="https://api.devguard.opencode.de"
+  only:
+    - main

@@ -1,0 +1,15 @@
+{
+  "name": "nodejs-example",
+  "version": "1.0.0",
+  "description": "This folder contains a minimal Flask app and a `Containerfile` to build a container image.",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

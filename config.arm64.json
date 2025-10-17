@@ -85,13 +85,6 @@
             ]
         },
         {
-            "name": "libssl3",
-            "version": "",
-            "url": "https://deb.debian.org/debian/pool/main/libs/libssl3/libssl3__\u003cARCHITECTURE\u003e.deb",
-            "sha256": "",
-            "dependencies": []
-        },
-        {
             "name": "libssl3t64",
             "version": "3.5.1-1+deb13u1",
             "url": "https://deb.debian.org/debian/pool/main/o/openssl/libssl3t64_3.5.1-1+deb13u1_arm64.deb",

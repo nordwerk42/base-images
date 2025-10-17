@@ -1,12 +1,12 @@
-# Node.js Distroless Container Image
+# Base Distroless Container Image
 
-Minimal, secure, and reproducible Node.js container image built with Nix from Debian packages.
+Minimal, secure, and reproducible base container image built with Nix from Debian packages. Contains only openssl, ca-certificates, glibc and timezone data.
 
 ![CVSS Badge](https://api.devguard.opencode.de/api/v1/badges/cvss/239bdfa1-d6a8-4973-ab60-1c4f43a1c6fe)
 
 ## Features
 
-- **Minimal**: Only essential Node.js runtime dependencies
+- **Minimal**: Only essential runtime dependencies
 - **Secure**: Distroless design, non-root user (UID 53111)
 - **Reproducible**: Built with Nix flakes, pinned package versions
 - **Multi-arch**: Supports `amd64` and `arm64`
@@ -17,47 +17,21 @@ Minimal, secure, and reproducible Node.js container image built with Nix from De
 
 ## Quick Start
 
-**See the [example/](./example/) directory** for a complete Node.js application using this image.
-
-### Using the Image
-
-This is a distroless image without package managers. Use a multi-stage build:
-
-```dockerfile
-# Builder stage: install dependencies
-FROM node:20-bookworm-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --omit=dev
-COPY . ./
-
-# Runtime stage: minimal distroless image
-FROM registry.opencode.de/open-code/oci/nodejs:20
-WORKDIR /app
-COPY --from=builder --chown=53111:53111 /app /app
-ENV NODE_ENV=production
-CMD ["/usr/bin/node", "app.js"]
-```
+**See the [example/](./example/) directory** for a complete application using this image.
 
 
 ## Image Variants
 
 ### Standard Images
-- `registry.opencode.de/open-code/oci/nodejs:20`
-- `registry.opencode.de/open-code/oci/nodejs:22`
-- `registry.opencode.de/open-code/oci/nodejs:20-amd64`
-- `registry.opencode.de/open-code/oci/nodejs:20-arm64`
-- `registry.opencode.de/open-code/oci/nodejs:22-amd64`
-- `registry.opencode.de/open-code/oci/nodejs:22-arm64`
+- `registry.opencode.de/open-code/oci/base:latest` - Multi-arch manifest (amd64 & arm64)
+- `registry.opencode.de/open-code/oci/base:amd64` - AMD64/x86_64 specific
+- `registry.opencode.de/open-code/oci/base:arm64` - ARM64/aarch64 specific
 
 ### Debug Images (with busybox shell)
 For troubleshooting and debugging purposes, debug variants are available with a minimal busybox shell:
-- `registry.opencode.de/open-code/oci/nodejs:20-debug`
-- `registry.opencode.de/open-code/oci/nodejs:22-debug`
-- `registry.opencode.de/open-code/oci/nodejs:20-amd64-debug`
-- `registry.opencode.de/open-code/oci/nodejs:20-arm64-debug`
-- `registry.opencode.de/open-code/oci/nodejs:22-amd64-debug`
-- `registry.opencode.de/open-code/oci/nodejs:22-arm64-debug`
+- `registry.opencode.de/open-code/oci/base:latest-debug` - Multi-arch manifest (amd64 & arm64)
+- `registry.opencode.de/open-code/oci/base:amd64-debug` - AMD64/x86_64 debug variant
+- `registry.opencode.de/open-code/oci/base:arm64-debug` - ARM64/aarch64 debug variant
 
 Debug images include:
 - Busybox static binary at `/bin/busybox`
@@ -66,13 +40,11 @@ Debug images include:
 
 **Example: Running a debug shell**
 ```bash
-docker run -it --rm registry.opencode.de/open-code/oci/nodejs:22-debug sh
+docker run -it --rm registry.opencode.de/open-code/oci/base:latest-debug sh
 ```
 
 ## Image Details
 
-- **Base**: Debian Bookworm packages
-- **Node.js Version**: 20.19.2 / 22.18.0
 - **User**: `nonroot` (53111:53111)
 - **Working Directory**: `/home/nonroot`
 - **Dynamic Linker Symlinks**: 

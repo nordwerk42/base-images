@@ -52,15 +52,15 @@
         {
             "name": "gcc-14-base",
             "version": "14.2.0-19",
-            "url": "https://deb.debian.org/debian/pool/main/g/gcc-14/gcc-14-base_14.2.0-19_arm64.deb",
-            "sha256": "1565zcnpqqm8cms0658iaiipysxfq32a8is74dj0x301kdkr1vil",
+            "url": "https://deb.debian.org/debian/pool/main/g/gcc-14/gcc-14-base_14.2.0-19_amd64.deb",
+            "sha256": "1xkwhqg51ddrr0fyhqxbqa4lwfsg85v687y5qiw4p0k38bg2as2v",
             "dependencies": []
         },
         {
             "name": "libc6",
             "version": "2.41-12",
-            "url": "https://deb.debian.org/debian/pool/main/g/glibc/libc6_2.41-12_arm64.deb",
-            "sha256": "17zml14xd7dqvh70mwaph4wxbld3fqz5cgf36lfgn8fa0n9da0d3",
+            "url": "https://deb.debian.org/debian/pool/main/g/glibc/libc6_2.41-12_amd64.deb",
+            "sha256": "02sxg46g0xr8wvx2ppxcxxb89izxgbrk7rb0dc9b43ndjw881zvc",
             "dependencies": [
                 {
                     "name": "libgcc-s1",
@@ -71,8 +71,8 @@
         {
             "name": "libgcc-s1",
             "version": "14.2.0-19",
-            "url": "https://deb.debian.org/debian/pool/main/g/gcc-14/libgcc-s1_14.2.0-19_arm64.deb",
-            "sha256": "0l98mkdnln7fgfwz9ddlcph39nyd2m52mwj5l7cxccwqhy3vq20i",
+            "url": "https://deb.debian.org/debian/pool/main/g/gcc-14/libgcc-s1_14.2.0-19_amd64.deb",
+            "sha256": "0l5ic70fsjx72q1b5k960l3cyvi5g9wa55iisjp1f6hd95xr2w9w",
             "dependencies": [
                 {
                     "name": "gcc-14-base",
@@ -87,8 +87,8 @@
         {
             "name": "libssl3t64",
             "version": "3.5.1-1+deb13u1",
-            "url": "https://deb.debian.org/debian/pool/main/o/openssl/libssl3t64_3.5.1-1+deb13u1_arm64.deb",
-            "sha256": "1s857phjv5w5y1ghy50jjznwwvxw9snlvfma2a43y039808yjzr9",
+            "url": "https://deb.debian.org/debian/pool/main/o/openssl/libssl3t64_3.5.1-1+deb13u1_amd64.deb",
+            "sha256": "1cxdnh7jdifnpc8jqykaywpfk2amv2shsmxbpa9ybdij7q8sj9m7",
             "dependencies": [
                 {
                     "name": "libc6",
@@ -111,8 +111,8 @@
         {
             "name": "libzstd1",
             "version": "1.5.7+dfsg-1",
-            "url": "https://deb.debian.org/debian/pool/main/libz/libzstd/libzstd1_1.5.7+dfsg-1_arm64.deb",
-            "sha256": "0j3lns8lgim30bhcf4dg7nj12i55mkyhwdh40rxaggzxb6yl0icj",
+            "url": "https://deb.debian.org/debian/pool/main/libz/libzstd/libzstd1_1.5.7+dfsg-1_amd64.deb",
+            "sha256": "1ygf91lv4x3h0vg97sq9rg5gik5zqjdi7j8an2lfn9f9rzm2lsig",
             "dependencies": [
                 {
                     "name": "libc6",
@@ -123,8 +123,8 @@
         {
             "name": "openssl",
             "version": "3.5.1-1+deb13u1",
-            "url": "https://deb.debian.org/debian/pool/main/o/openssl/openssl_3.5.1-1+deb13u1_arm64.deb",
-            "sha256": "1m0gyl3m3f9xfs9rhsqfcq6qiij7j9nzjn20lkcn2wnfh4x62vl3",
+            "url": "https://deb.debian.org/debian/pool/main/o/openssl/openssl_3.5.1-1+deb13u1_amd64.deb",
+            "sha256": "0f1311dsskbja3y6jx4if8955jk2l9lwa85rk2nc6980y5xl605g",
             "dependencies": [
                 {
                     "name": "libc6",
@@ -139,8 +139,8 @@
         {
             "name": "openssl-provider-legacy",
             "version": "3.5.1-1+deb13u1",
-            "url": "https://deb.debian.org/debian/pool/main/o/openssl/openssl-provider-legacy_3.5.1-1+deb13u1_arm64.deb",
-            "sha256": "1255ial1d16fhmzccim65y2ifl7xyl5xg305b29ybzsc68h9kx5l",
+            "url": "https://deb.debian.org/debian/pool/main/o/openssl/openssl-provider-legacy_3.5.1-1+deb13u1_amd64.deb",
+            "sha256": "0i1r2fb1cpm5p2sqq760px954p3pznyfkzyhdxfr439pyhwn40rw",
             "dependencies": [
                 {
                     "name": "libc6",
@@ -167,8 +167,8 @@
         {
             "name": "zlib1g",
             "version": "1.3.dfsg+really1.3.1-1+b1",
-            "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib1g_1.3.dfsg+really1.3.1-1+b1_arm64.deb",
-            "sha256": "1vyxwq9wx3kcmc17hbn7n1sjxbjcvyk4z10h0kmvk5qycz7sb6i0",
+            "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib1g_1.3.dfsg+really1.3.1-1+b1_amd64.deb",
+            "sha256": "03f93bbniyrjr9k0bc3ddphjjzwh3l651sidb0ad2si3sr0ffnq1",
             "dependencies": [
                 {
                     "name": "libc6",

@@ -19,7 +19,7 @@
       # Target systems (what you're building for)
       targetSystems = [ "x86_64-linux" "aarch64-linux" ];
       
-      versions = [ "base" ];
+      versions = [ "latest" ];
 
       # Helper: Convert system to architecture name
       systemToArch = system: if system == "x86_64-linux" then "amd64" else "arm64";
@@ -32,7 +32,7 @@
         let
           arch = systemToArch targetSystem;
           configFile = ./config.${arch}.json;
-          config = builtins.fromJSON (builtins.readFile configFile);         
+          config = builtins.fromJSON (builtins.readFile configFile);
           distrolessHelpers = import "${container-hardening}/nix/build-distroless.nix" {
                 inherit pkgs nixpkgs;
                 debianArch = arch;
@@ -46,7 +46,6 @@
 
               customPackages = [];
             in {
-
               # The regular image package
               image = distrolessHelpers.buildImage {
                 inherit customPackages;
@@ -68,9 +67,15 @@
               # The SBOM package
               sbom = sbomGen.forImage {
                 inherit customPackages;
-                purl = "pkg:oci/base@${version}-${arch}?repository_url=registry.opencode.de/open-code/oci/base&tag=${arch}&arch=${arch}&os=linux";
+                purl = "pkg:oci/base@${arch}?repository_url=registry.opencode.de/open-code/oci/base&tag=${version}-${arch}&arch=${arch}&os=linux";
                 packages = config.packages;
                 topLevelPackages = config.topLevelPackages;
+              };
+              # The SBOM package for debug image
+              debugSbom = sbomGen.forImage {
+                purl = "pkg:oci/base@${arch}-debug?repository_url=registry.opencode.de/open-code/oci/base&tag=${version}-${arch}-debug&arch=${arch}&os=linux";
+                packages = config.packages ++ distrolessHelpers.debugPackages;
+                topLevelPackages = config.topLevelPackages ++ distrolessHelpers.debugPackages;
               };
             };
           
@@ -81,8 +86,8 @@
                 arch = systemToArch targetSystem;
                 pkg = buildPackage targetSystem version;
               in {
-                # Create attribute name like "nodejs-22-amd64"
-                name = "nodejs-${version}-${arch}";
+                # Create attribute name like "base-22-amd64"
+                name = "base-${version}-${arch}";
                 value = pkg.image;
               }
             ) targetSystems ++
@@ -91,8 +96,8 @@
                 arch = systemToArch targetSystem;
                 pkg = buildPackage targetSystem version;
               in {
-                # Create attribute name like "nodejs-22-amd64-debug"
-                name = "nodejs-${version}-${arch}-debug";
+                # Create attribute name like "base-22-amd64-debug"
+                name = "base-${version}-${arch}-debug";
                 value = pkg.debugImage;
               }
             ) targetSystems ++
@@ -101,9 +106,19 @@
                 arch = systemToArch targetSystem;
                 pkg = buildPackage targetSystem version;
               in {
-                # Create attribute name like "nodejs-22-amd64-sbom"
-                name = "nodejs-${version}-${arch}-sbom";
+                # Create attribute name like "base-22-amd64-sbom"
+                name = "base-${version}-${arch}-sbom";
                 value = pkg.sbom;
+              }
+            ) targetSystems ++
+            map (targetSystem:
+              let
+                arch = systemToArch targetSystem;
+                pkg = buildPackage targetSystem version;
+              in {
+                # Create attribute name like "nodejs-22-amd64-debug-sbom"
+                name = "base-${version}-${arch}-debug-sbom";
+                value = pkg.debugSbom;
               }
             ) targetSystems);
           

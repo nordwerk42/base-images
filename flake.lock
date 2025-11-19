@@ -3,11 +3,11 @@
     "container-hardening": {
       "flake": false,
       "locked": {
-        "lastModified": 1760709479,
-        "narHash": "sha256-uruuj3jbHwKzSxM0uVcUNWaG0KmO5Hdlf9n3VrSifc8=",
+        "lastModified": 1763549692,
+        "narHash": "sha256-FhbSPpswesStvgzCoRM8ykDyIG3CGhI29Yfpcv4msKU=",
         "ref": "refs/heads/main",
-        "rev": "fbe564fa42f77066a915f9768a527206bff122f3",
-        "revCount": 49,
+        "rev": "73286730cc4d9ce321144292c74e9e6203ef306f",
+        "revCount": 190,
         "type": "git",
         "url": "ssh://git@gitlab.opencode.de/open-code/oci/container-hardening-work-bench.git"
       },
@@ -18,11 +18,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1760524057,
-        "narHash": "sha256-EVAqOteLBFmd7pKkb0+FIUyzTF61VKi7YmvP1tw4nEw=",
+        "lastModified": 1763421233,
+        "narHash": "sha256-Stk9ZYRkGrnnpyJ4eqt9eQtdFWRRIvMxpNRf4sIegnw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "544961dfcce86422ba200ed9a0b00dd4b1486ec5",
+        "rev": "89c2b2330e733d6cdb5eae7b899326930c2c0648",
         "type": "github"
       },
       "original": {

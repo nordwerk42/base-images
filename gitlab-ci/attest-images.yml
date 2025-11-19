@@ -1,0 +1,45 @@
+.common: &common
+  devguard_asset_name: "@opencode/projects/oci/assets/base"
+  devguard_token: "$DEVGUARD_TOKEN"
+  devguard_api_url: "https://api.devguard.opencode.de"
+  attestations:
+    - source: "https://api.devguard.opencode.de/api/v1/organizations/$[[ inputs.devguard_asset_name ]]/refs/COMMIT_REF/artifacts/ARTIFACT_NAME/sbom.json/"
+      predicate_type: "https://cyclonedx.org/bom"
+    - source: "https://api.devguard.opencode.de/api/v1/organizations/$[[ inputs.devguard_asset_name ]]/refs/COMMIT_REF/artifacts/ARTIFACT_NAME/vex.json/"
+      predicate_type: "https://cyclonedx.org/vex"
+    - source: "https://api.devguard.opencode.de/api/v1/organizations/$[[ inputs.devguard_asset_name ]]/refs/COMMIT_REF/sarif.json/"
+      predicate_type: "https://www.schemastore.org/schemas/json/sarif-2.1.0.json"
+    - source: "build.provenance.json"
+      predicate_type: "https://slsa.dev/provenance/v1"
+    - source: "badge-report.sarif"
+      predicate_type: "https://www.schemastore.org/schemas/json/sarif-2.1.0.json?type=badges"
+  
+
+include:
+- component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/attest@main
+  inputs:
+    devguard_artifact_name: "pkg:oci/base?repository_url=$CI_REGISTRY_IMAGE&tag=latest-amd64&arch=amd64"
+    job_suffix: "_amd64"
+    image: "$CI_REGISTRY_IMAGE:amd64"
+    needs:
+      - "build_multi_arch: [amd64, latest]"
+      - "push_multi_arch: [amd64, latest]"
+      - badges
+    dependencies:
+      - "build_multi_arch: [amd64, latest]"
+      - badges
+    <<: *common
+
+- component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/attest@main
+  inputs:
+    devguard_artifact_name: "pkg:oci/base?repository_url=$CI_REGISTRY_IMAGE&tag=latest-arm64&arch=arm64"
+    job_suffix: "_arm64"
+    image: "$CI_REGISTRY_IMAGE:arm64"
+    needs:
+      - "build_multi_arch: [arm64, latest]"
+      - "push_multi_arch: [arm64, latest]"
+      - badges
+    dependencies:
+      - "build_multi_arch: [arm64, latest]"
+      - badges
+    <<: *common

@@ -1,0 +1,34 @@
+.common: &common
+  architectures:
+    - amd64
+    - arm64
+  versions:
+    - "latest"
+
+include:
+- component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/push-images-multi-arch@main
+  inputs:
+    <<: *common
+    package_name: base-${VERSION}-${ARCH}
+    job_suffix: ""
+    image_tag: "$CI_REGISTRY_IMAGE:${VERSION}-${ARCH}"
+    dependencies:
+      - build_multi_arch
+    needs:
+      - build_multi_arch
+    run_only_on:
+      - main
+      - modernize-pipeline
+- component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/push-images-multi-arch@main
+  inputs:
+    <<: *common
+    package_name: base-${VERSION}-${ARCH}-debug
+    job_suffix: "_debug"
+    image_tag: "$CI_REGISTRY_IMAGE:${VERSION}-${ARCH}-debug"
+    dependencies:
+      - build_multi_arch_debug
+    needs:
+      - build_multi_arch_debug
+    run_only_on:
+      - main
+      - modernize-pipeline

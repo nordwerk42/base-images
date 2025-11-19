@@ -14,7 +14,7 @@
         },
         {
             "name": "libssl3t64",
-            "version": "3.5.1-1+deb13u1"
+            "version": "3.5.4-1"
         },
         {
             "name": "tzdata",
@@ -34,7 +34,7 @@
             "dependencies": [
                 {
                     "name": "openssl",
-                    "version": "3.5.1-1+deb13u1"
+                    "version": "3.5.4-1"
                 },
                 {
                     "name": "debconf",
@@ -86,9 +86,9 @@
         },
         {
             "name": "libssl3t64",
-            "version": "3.5.1-1+deb13u1",
-            "url": "https://deb.debian.org/debian/pool/main/o/openssl/libssl3t64_3.5.1-1+deb13u1_arm64.deb",
-            "sha256": "1s857phjv5w5y1ghy50jjznwwvxw9snlvfma2a43y039808yjzr9",
+            "version": "3.5.4-1",
+            "url": "https://deb.debian.org/debian/pool/main/o/openssl/libssl3t64_3.5.4-1_arm64.deb",
+            "sha256": "1x4a260bp8higw3f5f91qrdvibxj0jmqb9q94bc7pqy8fkrhbpl7",
             "dependencies": [
                 {
                     "name": "libc6",
@@ -104,7 +104,7 @@
                 },
                 {
                     "name": "openssl-provider-legacy",
-                    "version": "3.5.1-1+deb13u1"
+                    "version": "3.5.4-1"
                 }
             ]
         },
@@ -122,9 +122,9 @@
         },
         {
             "name": "openssl",
-            "version": "3.5.1-1+deb13u1",
-            "url": "https://deb.debian.org/debian/pool/main/o/openssl/openssl_3.5.1-1+deb13u1_arm64.deb",
-            "sha256": "1m0gyl3m3f9xfs9rhsqfcq6qiij7j9nzjn20lkcn2wnfh4x62vl3",
+            "version": "3.5.4-1",
+            "url": "https://deb.debian.org/debian/pool/main/o/openssl/openssl_3.5.4-1_arm64.deb",
+            "sha256": "0xragk22aw5sgylfhhjyz9bl1kw5pj21hl130l377kikbl885gh0",
             "dependencies": [
                 {
                     "name": "libc6",
@@ -132,15 +132,15 @@
                 },
                 {
                     "name": "libssl3t64",
-                    "version": "3.5.1-1+deb13u1"
+                    "version": "3.5.4-1"
                 }
             ]
         },
         {
             "name": "openssl-provider-legacy",
-            "version": "3.5.1-1+deb13u1",
-            "url": "https://deb.debian.org/debian/pool/main/o/openssl/openssl-provider-legacy_3.5.1-1+deb13u1_arm64.deb",
-            "sha256": "1255ial1d16fhmzccim65y2ifl7xyl5xg305b29ybzsc68h9kx5l",
+            "version": "3.5.4-1",
+            "url": "https://deb.debian.org/debian/pool/main/o/openssl/openssl-provider-legacy_3.5.4-1_arm64.deb",
+            "sha256": "1g2y61m48hapg75zy2dbc96dijym6zq1as3pnsvm6517hc1gxzzn",
             "dependencies": [
                 {
                     "name": "libc6",
@@ -148,7 +148,7 @@
                 },
                 {
                     "name": "libssl3t64",
-                    "version": "3.5.1-1+deb13u1"
+                    "version": "3.5.4-1"
                 }
             ]
         },

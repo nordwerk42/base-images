@@ -67,13 +67,13 @@
               # The SBOM package
               sbom = sbomGen.forImage {
                 inherit customPackages;
-                purl = "pkg:oci/base@${arch}?repository_url=registry.opencode.de/open-code/oci/base&tag=${version}-${arch}&arch=${arch}&os=linux";
+                purl = "pkg:oci/base@${version}-${arch}?repository_url=registry.opencode.de/open-code/oci/base&tag=${version}-${arch}&arch=${arch}&os=linux";
                 packages = config.packages;
                 topLevelPackages = config.topLevelPackages;
               };
               # The SBOM package for debug image
               debugSbom = sbomGen.forImage {
-                purl = "pkg:oci/base@${arch}-debug?repository_url=registry.opencode.de/open-code/oci/base&tag=${version}-${arch}-debug&arch=${arch}&os=linux";
+                purl = "pkg:oci/base@${version}-${arch}-debug?repository_url=registry.opencode.de/open-code/oci/base&tag=${version}-${arch}-debug&arch=${arch}&os=linux";
                 packages = config.packages ++ distrolessHelpers.debugPackages;
                 topLevelPackages = config.topLevelPackages ++ distrolessHelpers.debugPackages;
               };

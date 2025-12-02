@@ -64,3 +64,4 @@ build_image:
         inputs:
           <<: *common
           build_job_name: "build_nix:${VERSION}-${ARCHITECTURE}"
+          version: add-generate-tag-component

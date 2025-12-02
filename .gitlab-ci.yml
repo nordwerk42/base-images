@@ -55,14 +55,13 @@ build_image:
         inputs:
           <<: *common
           package_name: base
-          job_suffix: ":${VERSION}-${ARCHITECTURE}"
           architecture: ${ARCHITECTURE}
           version: ${VERSION}
 
       - remote: https://gitlab.com/l3montree/devguard/-/raw/add-generate-tag-component/templates/container-scanning-and-attest.yml
         inputs:
           <<: *common
-          build_job_name: "build_nix:${VERSION}-${ARCHITECTURE}"
+          build_job_name: "build_nix"
           version: add-generate-tag-component
           build_stage: build
           attest_stage: test

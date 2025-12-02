@@ -65,3 +65,4 @@ build_image:
           version: add-generate-tag-component
           build_stage: build
           attest_stage: test
+          architecture: ${ARCHITECTURE}

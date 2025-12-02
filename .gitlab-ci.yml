@@ -49,6 +49,7 @@ build_image:
   parallel:
     matrix: *matrix
   trigger:
+    strategy: depend
     include:
       - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/build-nix@add-generate-tag-cli-command
         inputs:

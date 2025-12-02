@@ -60,7 +60,7 @@ build_image:
           architecture: ${ARCHITECTURE}
           version: ${VERSION}
 
-      - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/container-scanning-and-attest@add-generate-tag-component
+      - remote: https://gitlab.com/l3montree/devguard/-/raw/add-generate-tag-component/templates/container-scanning-and-attest.yml
         inputs:
           <<: *common
           build_job_name: "build_nix:${VERSION}-${ARCHITECTURE}"

@@ -52,7 +52,7 @@ build_image:
     matrix: *matrix
   trigger:
     include:
-      - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/build-nix@main
+      - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/build-nix@add-generate-tag-cli-command
         inputs:
           <<: *common
           package_name: base

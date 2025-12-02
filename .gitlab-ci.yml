@@ -11,12 +11,10 @@
 # 10. Attest images and manifests with DevGuard
 ###### SUMMARY
 stages:
-  - pre
+  - .pre
   - build
   - test
-  - push
-  - manifest
-  - sign
+  - oci-image
   - attestation
 
 .common: &common

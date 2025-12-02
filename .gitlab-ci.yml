@@ -25,11 +25,10 @@ stages:
   devguard_api_url: "https://api.devguard.opencode.de"
 
 .matrix: &matrix
-  ARCHITECTURE:
-    - amd64
-    - arm64
-  VERSION:
-    - latest
+  - ARCHITECTURE: amd64
+    VERSION: latest
+  - ARCHITECTURE: arm64
+    VERSION: latest
 
 include:
   ##############################################

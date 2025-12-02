@@ -64,3 +64,5 @@ build_image:
           <<: *common
           build_job_name: "build_nix:${VERSION}-${ARCHITECTURE}"
           version: add-generate-tag-component
+          build_stage: build
+          attest_stage: test

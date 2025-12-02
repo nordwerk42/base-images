@@ -97,7 +97,7 @@
                 pkg = buildPackage targetSystem version;
               in {
                 # Create attribute name like "base-22-amd64-debug"
-                name = "base-${version}-${arch}-debug";
+                name = "base-debug-${version}-${arch}";
                 value = pkg.debugImage;
               }
             ) targetSystems ++
@@ -117,7 +117,7 @@
                 pkg = buildPackage targetSystem version;
               in {
                 # Create attribute name like "nodejs-22-amd64-debug-sbom"
-                name = "base-${version}-${arch}-debug-sbom";
+                name = "base-debug-${version}-${arch}-sbom";
                 value = pkg.debugSbom;
               }
             ) targetSystems);

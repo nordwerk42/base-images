@@ -66,3 +66,11 @@ build_image:
           build_stage: build
           attest_stage: test
           architecture: ${ARCHITECTURE}
+
+
+create_multiarch_manifest:
+  stage: attestation
+  needs:
+    - build_image
+  script:
+    - ls -R .

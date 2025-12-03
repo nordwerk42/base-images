@@ -49,8 +49,6 @@ build_image:
     matrix: *matrix
   trigger:
     strategy: depend
-    forward:
-      pipeline_variables: true
     include:
       - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/build-nix@add-generate-tag-cli-command
         inputs:
@@ -91,16 +89,33 @@ collect_child_pipeline_artifacts:
   image: curlimages/curl:latest
   needs:
     - job: "build_image: [amd64, latest]"
-      artifacts: true
     - job: "build_image: [arm64, latest]"
-      artifacts: true
+  before_script:
+    - apk add --no-cache jq
   script:
-    - echo "Collecting artifacts from child pipelines..."
-    - ls -lah
-    - find . -type f -name "*.tar" -o -name "*.json" | sort
+    - echo "Fetching all child pipeline IDs..."
+    - mkdir -p artifacts
+    - |
+      curl --silent --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" \
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/pipelines/${CI_PIPELINE_ID}/bridges" | \
+        jq -r '.[] | select(.downstream_pipeline != null) | "\(.name)|\(.downstream_pipeline.id)"' | \
+        while IFS='|' read bridge_name pipeline_id; do
+          echo "Processing child pipeline: ${bridge_name} (ID: ${pipeline_id})"
+          
+          curl --location --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" \
+            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/pipelines/${pipeline_id}/jobs" | \
+            jq -r '.[] | select(.artifacts_file != null) | .id' | while read job_id; do
+              echo "  Downloading artifacts from job ${job_id}..."
+              curl --location --output "artifacts/job-${job_id}.zip" \
+                --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" \
+                "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/jobs/${job_id}/artifacts"
+              unzip -o "artifacts/job-${job_id}.zip" -d "artifacts/" || true
+              rm "artifacts/job-${job_id}.zip"
+            done
+        done
     - echo "Artifacts collected successfully"
+    - find artifacts/ -type f | sort
   artifacts:
     paths:
-      - "**/*.tar"
-      - "**/*.json"
+      - artifacts/
     expire_in: 1 week

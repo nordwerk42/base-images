@@ -47,11 +47,15 @@ include:
       needs:
         - "build_image [arm64, latest]"
         - "build_image [amd64, latest]"
+      dependencies:
+        - "build_image [arm64, latest]"
+        - "build_image [amd64, latest]"
+
   - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/create-manifest-multiarch@add-generate-tag-cli-command
     inputs:
       needs:
         - collect_child_pipeline_artifacts
-        
+
 build_image:
   stage: build
   parallel:

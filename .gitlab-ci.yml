@@ -56,10 +56,9 @@ include:
       dependencies:
         - collect_child_pipeline_artifacts
     
-  - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/sign-oci-image@main
+  - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/sign-oci-image@add-generate-tag-component
     inputs:
       <<: *common
-      devguard_web_ui: "https://devguard.opencode.de"
       image: $MANIFEST_IMAGE_TAG
       needs:
         - create_manifest_multi_arch

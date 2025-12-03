@@ -72,7 +72,7 @@ build_image:
         inputs:
           <<: *common
           stage: "test"
-          version: add-generate-tag-component
+          sbom_file: "sbom.json"
           needs:
             - "build_nix"
             - "devguard:generate_tag"

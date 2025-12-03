@@ -17,17 +17,6 @@ stages:
   - oci-image
   - attestation
 
-.common: &common
-  devguard_asset_name: "@opencode/projects/oci/assets/base"
-  devguard_token: "$DEVGUARD_TOKEN"
-  devguard_api_url: "https://api.devguard.opencode.de"
-
-.matrix: &matrix
-  - ARCHITECTURE: amd64
-    VERSION: latest
-  - ARCHITECTURE: arm64
-    VERSION: latest
-
 include:
   ##############################################
   ## Secret Scanning
@@ -41,67 +30,11 @@ include:
   ## Generates Badge Programm Report for the image to later attest it
   #######################
   - component: $CI_SERVER_FQDN/open-code/badgebackend/badge-api/badges@b321cb16eb8e49c80eae0b33907abaf1d6e99f0c
-  ##############################################
-  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/collect-child-pipeline-artifacts@main
+  - local: build_package.yml
     inputs:
-      needs:
-        - "build_image"
-      dependencies:
-        - "build_image"
-
-  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/create-manifest-multi-arch@main
+      package_name: "base"
+      image_suffix: ""
+  - local: build_package.yml
     inputs:
-      needs:
-        - collect_child_pipeline_artifacts
-      dependencies:
-        - collect_child_pipeline_artifacts
-    
-  - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/sign-oci-image@main
-    inputs:
-      <<: *common
-      image: $MANIFEST_IMAGE_TAG
-      needs:
-        - create_manifest_multi_arch
-      dependencies:
-        - create_manifest_multi_arch
-
-build_image:
-  stage: build
-  parallel:
-    matrix: *matrix
-  trigger:
-    strategy: depend
-    include:
-      - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/build-nix@main
-        inputs:
-          <<: *common
-          package_name: base
-          architecture: ${ARCHITECTURE}
-          version: ${VERSION}
-          output_path_sbom: "sbom.json"
-          output_path_image: "image.tar"
-      
-      - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/container-scanning-and-attest@main
-        inputs:
-          <<: *common
-          build_job_name: "build_nix"
-          version: main
-          build_stage: build
-          attest_stage: test
-          architecture: ${ARCHITECTURE}
-          devguard_origin: OCI_IMAGE_SCAN
-
-      - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/sbom-upload@main
-        inputs:
-          <<: *common
-          stage: "test"
-          sbom_file: "sbom.json"
-          needs:
-            - "build_nix"
-            - "devguard:generate_tag"
-          dependencies:
-            - "build_nix"
-            - "devguard:generate_tag"
-          devguard_artifact_name: $ARTIFACT_NAME
-          devguard_origin: SBOM_UPLOAD
-
+      package_name: "base-debug"
+      image_suffix: "debug"

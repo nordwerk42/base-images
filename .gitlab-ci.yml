@@ -42,21 +42,21 @@ include:
   #######################
   - component: $CI_SERVER_FQDN/open-code/badgebackend/badge-api/badges@b321cb16eb8e49c80eae0b33907abaf1d6e99f0c
   ##############################################
-  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/collect-child-pipeline-artifacts@add-generate-tag-cli-command
+  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/collect-child-pipeline-artifacts@main
     inputs:
       needs:
         - "build_image"
       dependencies:
         - "build_image"
 
-  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/create-manifest-multi-arch@add-generate-tag-cli-command
+  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/create-manifest-multi-arch@main
     inputs:
       needs:
         - collect_child_pipeline_artifacts
       dependencies:
         - collect_child_pipeline_artifacts
     
-  - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/sign-oci-image@add-generate-tag-component
+  - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/sign-oci-image@main
     inputs:
       <<: *common
       image: $MANIFEST_IMAGE_TAG
@@ -72,7 +72,7 @@ build_image:
   trigger:
     strategy: depend
     include:
-      - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/build-nix@add-generate-tag-cli-command
+      - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/build-nix@main
         inputs:
           <<: *common
           package_name: base
@@ -81,17 +81,17 @@ build_image:
           output_path_sbom: "sbom.json"
           output_path_image: "image.tar"
       
-      - remote: https://gitlab.com/l3montree/devguard/-/raw/add-generate-tag-component/templates/container-scanning-and-attest.yml
+      - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/container-scanning-and-attest@main
         inputs:
           <<: *common
           build_job_name: "build_nix"
-          version: add-generate-tag-component
+          version: main
           build_stage: build
           attest_stage: test
           architecture: ${ARCHITECTURE}
           devguard_origin: OCI_IMAGE_SCAN
 
-      - remote: https://gitlab.com/l3montree/devguard/-/raw/add-generate-tag-component/templates/sbom-upload.yml
+      - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/sbom-upload@main
         inputs:
           <<: *common
           stage: "test"

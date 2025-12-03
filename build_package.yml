@@ -22,26 +22,29 @@ include:
   ##############################################
   - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/collect-child-pipeline-artifacts@main
     inputs:
+      job_suffix: ":$[[ inputs.package_name ]]"
       needs:
-        - "build_image"
+        - "build_image:$[[ inputs.package_name ]]"
       dependencies:
-        - "build_image"
+        - "build_image:$[[ inputs.package_name ]]"
 
   - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/create-manifest-multi-arch@main
     inputs:
+      job_suffix: ":$[[ inputs.package_name ]]"
       needs:
-        - collect_child_pipeline_artifacts
+        - collect_child_pipeline_artifacts:$[[ inputs.package_name ]]
       dependencies:
-        - collect_child_pipeline_artifacts
+        - collect_child_pipeline_artifacts:$[[ inputs.package_name ]]
     
   - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/sign-oci-image@main
     inputs:
       <<: *common
       image: $MANIFEST_IMAGE_TAG
+      job_suffix: ":$[[ inputs.package_name ]]"
       needs:
-        - create_manifest_multi_arch
+        - create_manifest_multi_arch:$[[ inputs.package_name ]]
       dependencies:
-        - create_manifest_multi_arch
+        - create_manifest_multi_arch:$[[ inputs.package_name ]]
 
 build_image:$[[ inputs.package_name ]]:
   stage: build

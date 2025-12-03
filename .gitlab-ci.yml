@@ -34,9 +34,7 @@ include:
   #######################
   - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/secret-scanning@main
     inputs:
-      devguard_asset_name: "@opencode/projects/oci/assets/base"
-      devguard_token: "$DEVGUARD_TOKEN"
-      devguard_api_url: "https://api.devguard.opencode.de"
+      <<: *common
       devguard_web_ui: "https://devguard.opencode.de"
 
   ##############################################
@@ -57,7 +55,9 @@ build_image:
           package_name: base
           architecture: ${ARCHITECTURE}
           version: ${VERSION}
-
+          output_path_sbom: "sbom.json"
+          output_path_image: "image.tar"
+      
       - remote: https://gitlab.com/l3montree/devguard/-/raw/add-generate-tag-component/templates/container-scanning-and-attest.yml
         inputs:
           <<: *common
@@ -66,11 +66,30 @@ build_image:
           build_stage: build
           attest_stage: test
           architecture: ${ARCHITECTURE}
+          devguard_origin: OCI_IMAGE_SCAN
+
+      - remote: https://gitlab.com/l3montree/devguard/-/raw/add-generate-tag-component/templates/sbom-upload.yml
+        inputs:
+          <<: *common
+          stage: "test"
+          version: add-generate-tag-component
+          needs:
+            - "build_nix"
+            - "devguard:generate_tag"
+          dependencies:
+            - "build_nix"
+            - "devguard:generate_tag"
+          devguard_artifact_name: $ARTIFACT_NAME
+          devguard_origin: SBOM_UPLOAD
 
 
-create_multiarch_manifest:
+collect_child_pipeline_artifacts:
   stage: attestation
   needs:
-    - build_image
+    - "build_image: [amd64, latest]"
+    - "build_image: [arm64, latest]"
+  dependencies:
+    - "build_image: [amd64, latest]"
+    - "build_image: [arm64, latest]"
   script:
     - ls -R .

@@ -53,6 +53,8 @@ include:
     inputs:
       needs:
         - collect_child_pipeline_artifacts
+      dependencies:
+        - collect_child_pipeline_artifacts
 
 build_image:
   stage: build

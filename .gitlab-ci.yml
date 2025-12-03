@@ -119,3 +119,59 @@ collect_child_pipeline_artifacts:
     paths:
       - artifacts/
     expire_in: 1 week
+
+create_manifest:
+  stage: attestation
+  image: docker:28.5.2@sha256:2a232a42256f70d78e3cc5d2b5d6b3276710a0de0596c145f627ecfae90282ac
+  needs:
+    - collect_child_pipeline_artifacts
+  dependencies:
+    - collect_child_pipeline_artifacts
+  before_script:
+    - apk add --no-cache bash
+    - mkdir -p ~/.docker
+    - echo '{"experimental":"enabled"}' > ~/.docker/config.json
+  script: |
+    docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    
+    # Find all generate_tag_*.env files and extract IMAGE_TAG values
+    echo "Looking for generate_tag_*.env files..."
+    find artifacts/ -name "generate_tag_*.env" -type f
+    
+    # Extract all IMAGE_TAG values (full image:tag format)
+    IMAGE_TAGS=$(find artifacts/ -name "generate_tag_*.env" -type f -exec grep -h "^IMAGE_TAG=" {} \; | cut -d'=' -f2 | sort -u)
+    
+    if [ -z "$IMAGE_TAGS" ]; then
+      echo "ERROR: No IMAGE_TAG found in generate_tag_*.env files"
+      exit 1
+    fi
+    
+    echo "Found image tags:"
+    echo "$IMAGE_TAGS"
+    
+    # Extract just the tag portion (after the colon) from first entry
+    FIRST_TAG=$(echo "$IMAGE_TAGS" | head -n1 | cut -d':' -f2)
+    
+    # Find common prefix by removing architecture suffixes from tag
+    TAG_SUFFIX=$(echo "$FIRST_TAG" | sed 's/-amd64$//' | sed 's/-arm64$//')
+    
+    # Get the image path (everything before the colon) from first entry
+    IMAGE_PATH=$(echo "$IMAGE_TAGS" | head -n1 | cut -d':' -f1)
+    
+    # Construct the full base tag
+    BASE_TAG="$IMAGE_PATH:$TAG_SUFFIX"
+    
+    echo "Base tag: $BASE_TAG"
+    echo "Creating multi-arch manifest..."
+    
+    # Create manifest with all architecture-specific tags
+    MANIFEST_CMD="docker manifest create $BASE_TAG"
+    for full_image_tag in $IMAGE_TAGS; do
+      MANIFEST_CMD="$MANIFEST_CMD $full_image_tag"
+      echo "  Adding: $full_image_tag"
+    done
+    
+    eval $MANIFEST_CMD
+    docker manifest push $BASE_TAG
+    echo "Multi-arch manifest created at $BASE_TAG"
+

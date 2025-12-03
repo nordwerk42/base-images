@@ -45,11 +45,9 @@ include:
   - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/collect-child-pipeline-artifacts@add-generate-tag-cli-command
     inputs:
       needs:
-        - "build_image [arm64, latest]"
-        - "build_image [amd64, latest]"
+        - "build_image"
       dependencies:
-        - "build_image [arm64, latest]"
-        - "build_image [amd64, latest]"
+        - "build_image"
 
   - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/create-manifest-multi-arch@add-generate-tag-cli-command
     inputs:

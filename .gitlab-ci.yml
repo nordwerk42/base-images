@@ -44,10 +44,13 @@ include:
   ##############################################
 
 build_image:
+  stage: build
   parallel:
     matrix: *matrix
   trigger:
     strategy: depend
+    forward:
+      pipeline_variables: true
     include:
       - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/build-nix@add-generate-tag-cli-command
         inputs:
@@ -85,11 +88,19 @@ build_image:
 
 collect_child_pipeline_artifacts:
   stage: attestation
+  image: curlimages/curl:latest
   needs:
-    - "build_image: [amd64, latest]"
-    - "build_image: [arm64, latest]"
-  dependencies:
-    - "build_image: [amd64, latest]"
-    - "build_image: [arm64, latest]"
+    - job: "build_image: [amd64, latest]"
+      artifacts: true
+    - job: "build_image: [arm64, latest]"
+      artifacts: true
   script:
-    - ls -R .
+    - echo "Collecting artifacts from child pipelines..."
+    - ls -lah
+    - find . -type f -name "*.tar" -o -name "*.json" | sort
+    - echo "Artifacts collected successfully"
+  artifacts:
+    paths:
+      - "**/*.tar"
+      - "**/*.json"
+    expire_in: 1 week

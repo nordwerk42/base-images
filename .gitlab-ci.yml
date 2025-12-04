@@ -31,11 +31,6 @@ include:
       <<: *common
       devguard_web_ui: "https://devguard.opencode.de"
 
-  ##############################################
-  ## Generates Badge Programm Report for the image to later attest it
-  #######################
-  - component: $CI_SERVER_FQDN/open-code/badgebackend/badge-api/badges@b321cb16eb8e49c80eae0b33907abaf1d6e99f0c
-
   - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/full-nix@main
     inputs:
       package_name: "base"

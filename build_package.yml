@@ -2,7 +2,7 @@ spec:
   inputs:
     package_name:
       type: string
-    image_suffix:
+    image_variant:
       type: string
       default: ""
 ---
@@ -69,7 +69,7 @@ build_image:$[[ inputs.package_name ]]:
           version: main
           build_stage: build
           attest_stage: test
-          image_suffix: $[[ inputs.image_suffix ]]
+          image_variant: $[[ inputs.image_variant ]]
           architecture: ${ARCHITECTURE}
           devguard_origin: OCI_IMAGE_SCAN
 

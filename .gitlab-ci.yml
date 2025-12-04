@@ -35,8 +35,7 @@ include:
   - local: build_package.yml
     inputs:
       package_name: "base"
-      image_suffix: ""
+      image_variant: "minimal"
   - local: build_package.yml
     inputs:
       package_name: "base-debug"
-      image_suffix: "debug"

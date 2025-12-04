@@ -17,25 +17,42 @@ stages:
   - oci-image
   - attestation
 
+.common: &common
+  devguard_asset_name: "@opencode/projects/oci/assets/debian"
+  devguard_token: "$DEVGUARD_TOKEN"
+  devguard_api_url: "https://api.devguard.opencode.de"
+
 include:
   ##############################################
   ## Secret Scanning
   #######################
   - component: $CI_SERVER_FQDN/l3montree/devguard-ci-components/secret-scanning@main
     inputs:
-      devguard_asset_name: "@opencode/projects/oci/assets/base"
-      devguard_token: "$DEVGUARD_TOKEN"
-      devguard_api_url: "https://api.devguard.opencode.de"
+      <<: *common
       devguard_web_ui: "https://devguard.opencode.de"
 
   ##############################################
   ## Generates Badge Programm Report for the image to later attest it
   #######################
   - component: $CI_SERVER_FQDN/open-code/badgebackend/badge-api/badges@b321cb16eb8e49c80eae0b33907abaf1d6e99f0c
-  - local: build_package.yml
+
+  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/full-nix@main
     inputs:
       package_name: "base"
       image_variant: "minimal"
-  - local: build_package.yml
+      <<: *common
+      matrix:
+        - ARCHITECTURE: amd64
+          VERSION: latest
+        - ARCHITECTURE: arm64
+          VERSION: latest
+
+  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/full-nix@main
     inputs:
       package_name: "base-debug"
+      <<: *common
+      matrix:
+        - ARCHITECTURE: amd64
+          VERSION: latest
+        - ARCHITECTURE: arm64
+          VERSION: latest

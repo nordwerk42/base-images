@@ -67,13 +67,13 @@
               # The SBOM package
               sbom = sbomGen.forImage {
                 inherit customPackages;
-                purl = "pkg:oci/base@${version}-${arch}?repository_url=registry.opencode.de/open-code/oci/base&tag=${version}-${arch}&arch=${arch}&os=linux";
+                purl = "pkg:oci/base";
                 packages = config.packages;
                 topLevelPackages = config.topLevelPackages;
               };
               # The SBOM package for debug image
               debugSbom = sbomGen.forImage {
-                purl = "pkg:oci/base@${version}-${arch}-debug?repository_url=registry.opencode.de/open-code/oci/base&tag=${version}-${arch}-debug&arch=${arch}&os=linux";
+                purl = "pkg:oci/base";
                 packages = config.packages ++ distrolessHelpers.debugPackages;
                 topLevelPackages = config.topLevelPackages ++ distrolessHelpers.debugPackages;
               };
@@ -96,7 +96,7 @@
                 arch = systemToArch targetSystem;
                 pkg = buildPackage targetSystem version;
               in {
-                # Create attribute name like "base-22-amd64-debug"
+                # Create attribute name like "base-debug-22-amd64"
                 name = "base-debug-${version}-${arch}";
                 value = pkg.debugImage;
               }
@@ -116,7 +116,7 @@
                 arch = systemToArch targetSystem;
                 pkg = buildPackage targetSystem version;
               in {
-                # Create attribute name like "nodejs-22-amd64-debug-sbom"
+                # Create attribute name like "base-debug-22-amd64-sbom"
                 name = "base-debug-${version}-${arch}-sbom";
                 value = pkg.debugSbom;
               }

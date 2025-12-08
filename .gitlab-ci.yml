@@ -38,9 +38,9 @@ include:
       <<: *common
       matrix:
         - ARCHITECTURE: amd64
-          VERSION: latest
+          VERSION: "0"
         - ARCHITECTURE: arm64
-          VERSION: latest
+          VERSION: "0"
 
   - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/full-nix@main
     inputs:
@@ -48,6 +48,6 @@ include:
       <<: *common
       matrix:
         - ARCHITECTURE: amd64
-          VERSION: latest
+          VERSION: "0"
         - ARCHITECTURE: arm64
-          VERSION: latest
+          VERSION: "0"

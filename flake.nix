@@ -19,7 +19,7 @@
       # Target systems (what you're building for)
       targetSystems = [ "x86_64-linux" "aarch64-linux" ];
       
-      versions = [ "latest" ];
+      versions = [ "0" ];
 
       # Helper: Convert system to architecture name
       systemToArch = system: if system == "x86_64-linux" then "amd64" else "arm64";

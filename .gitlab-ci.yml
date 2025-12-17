@@ -38,18 +38,12 @@ include:
       package_name: "base"
       image_variant: "minimal"
       <<: *common
-      matrix:
-        - ARCHITECTURE: amd64
-          VERSION: "0"
-        - ARCHITECTURE: arm64
-          VERSION: "0"
+      architectures: ["amd64", "arm64"]
+      versions: ["0"]
 
   - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/full-nix@main
     inputs:
       package_name: "base-debug"
       <<: *common
-      matrix:
-        - ARCHITECTURE: amd64
-          VERSION: "0"
-        - ARCHITECTURE: arm64
-          VERSION: "0"
+      architectures: ["amd64", "arm64"]
+      versions: ["0"]

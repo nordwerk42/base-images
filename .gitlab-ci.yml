@@ -1,3 +1,5 @@
+# Copyright 2025 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH.
+# SPDX-License-Identifier: MIT
 ###### SUMMARY
 # 1. Secret Scanning & Badge Generation
 # 2. Build Node.js multi-arch images

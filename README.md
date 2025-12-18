@@ -84,3 +84,7 @@ bQwmuDfxix8BMRTZB9UHcOX4EgmAHWyXsbANB6tG8XWoqFpYRReNUvsG6g==
 A detailed description of the process can be found in the [DevGuard Documentation](https://devguard.org/concept-guides/container-hardening/process)
 
 To assure, that the image is hardened, matching the openCode process, we followed the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads).
+
+## Notable Details
+
+- User: nonroot (53111:53111)

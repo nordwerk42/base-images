@@ -14,7 +14,7 @@ This image was hardened and has less vulnerabilities, than the normal base image
 
 You can find all available tags in the [projects container registry](https://gitlab.opencode.de/open-code/oci/base/container_registry).
 
-### Standard Images
+### Standard Image
 
 For troubleshooting and debugging purposes, Standard variants are available with a minimal busybox shell:
 
@@ -26,7 +26,7 @@ Standard images include:
 - Common shell utilities: `sh`, `ash`, `cat`, `ls`, `cp`, `mv`, `rm`, `mkdir`, `rmdir`, `ln`, `chmod`, `chown`, `grep`, `find`, `ps`, `top`
 - Useful for inspecting the container filesystem and debugging runtime issues
 
-### Debug Images
+### Debug Image
 
 - `registry.opencode.de/open-code/oci/base:1.0.0-rc.2-minimal`
 

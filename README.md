@@ -1,51 +1,93 @@
 # Base Distroless Container Image
 
-Minimal, secure, and reproducible base container image built with Nix from Debian packages. Contains only openssl, ca-certificates, glibc and timezone data.
+![CVSS Badge](https://api.devguard.opencode.de/api/v1/badges/cvss/9d96d768-7d28-4244-a538-49617d14a7ba)
 
-![CVSS Badge](https://api.devguard.opencode.de/api/v1/badges/cvss/239bdfa1-d6a8-4973-ab60-1c4f43a1c6fe)
+[Badge Programm Results](https://badges.opencode.de/de/?repositoryUrl=https%3A%2F%2Fgitlab.opencode.de%2Fopen-code%2Foci%2Fbase)
 
-## Features
+This base image is the hardened container image provide to you by openCode. The image was hardened for you using the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads) and [openCode DevGuard](https://devguard.opencode.de/)
 
-- **Minimal**: Only essential runtime dependencies
-- **Secure**: Distroless design, non-root user (UID 53111)
-- **Reproducible**: Built with Nix flakes, pinned package versions
-- **Multi-arch**: Supports `amd64` and `arm64`
-- **Debug Variants**: Debug images with busybox shell for troubleshooting
-- **SBOM**: Includes Software Bill of Materials for supply chain security
-- **VEX**: Vulnerability Exploitability eXchange data generation
-- **SSL/TLS Ready**: Includes CA certificates for HTTPS connections
+## Why should I use this image?
 
-## Quick Start
+This image was hardened and has less vulnerabilities, than the normal base image. By using this image you can be sure, that the vulnerabilities, which are present in the standard base image are mitigated following the best practices described in the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads)
 
-**See the [example/](./example/) directory** for a complete application using this image.
+## Which tags are available?
 
+You can find all available tags in the [projects container registry](https://gitlab.opencode.de/open-code/oci/base/container_registry/2662).
 
-## Image Variants
+### Standard Image
 
-### Standard Images
-- `registry.opencode.de/open-code/oci/base:latest` - Multi-arch manifest (amd64 & arm64)
-- `registry.opencode.de/open-code/oci/base:amd64` - AMD64/x86_64 specific
-- `registry.opencode.de/open-code/oci/base:arm64` - ARM64/aarch64 specific
+For troubleshooting and debugging purposes, Standard variants are available with a minimal busybox shell:
 
-### Debug Images (with busybox shell)
-For troubleshooting and debugging purposes, debug variants are available with a minimal busybox shell:
-- `registry.opencode.de/open-code/oci/base:latest-debug` - Multi-arch manifest (amd64 & arm64)
-- `registry.opencode.de/open-code/oci/base:amd64-debug` - AMD64/x86_64 debug variant
-- `registry.opencode.de/open-code/oci/base:arm64-debug` - ARM64/aarch64 debug variant
+- `registry.opencode.de/open-code/oci/base:1.0.0-rc.2`
 
-Debug images include:
+Standard images include:
+
 - Busybox static binary at `/bin/busybox`
 - Common shell utilities: `sh`, `ash`, `cat`, `ls`, `cp`, `mv`, `rm`, `mkdir`, `rmdir`, `ln`, `chmod`, `chown`, `grep`, `find`, `ps`, `top`
 - Useful for inspecting the container filesystem and debugging runtime issues
 
-**Example: Running a debug shell**
-```bash
-docker run -it --rm registry.opencode.de/open-code/oci/base:latest-debug sh
+### Minimal Image
+
+- `registry.opencode.de/open-code/oci/base:1.0.0-rc.2-minimal`
+
+## How do I verify this image?
+
+### 1. Pin the digest for integrity
+
+You should pin the digest `@sha256:...` in addition of your tag to ensure integrity.
+
+### 2. Verify the image signature with Cosign
+
+Verify the authenticity and integrity of the image:
+
+```sh
+cosign verify registry.opencode.de/open-code/oci/base:1.0.0-rc.2 --key cosign.pub --insecure-ignore-tlog=true
 ```
 
-## Image Details
+**Public Key:**
 
-- **User**: `nonroot` (53111:53111)
+```
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXdVDz6n39PDj9ZezqYgmZ/qCDV4h
+bQwmuDfxix8BMRTZB9UHcOX4EgmAHWyXsbANB6tG8XWoqFpYRReNUvsG6g==
+-----END PUBLIC KEY-----
+```
+
+### 3. Review attestations and reports
+
+- SBOM
+- VeX
+- Build Provenance
+- Badge Programm Report (SARIF)
+- Test Results (SARIF)
+
+- Current Vulnerability Exploitability Exchange (VeX):
+
+  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/vex.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64)
+  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/vex.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64)
+
+- Current Software Bill of Materials (SBOM):
+
+  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/sbom.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64)
+  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/sbom.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64)
+
+- Current [Badge Programm Results](https://badges.opencode.de/de/?repositoryUrl=https%3A%2F%2Fgitlab.opencode.de%2Fopen-code%2Foci%2Fbase)
+
+## How was this image hardened?
+
+1. The image is scanned for vulnerabilities using [openCode DevGuard](https://devguard.opencode.de/).
+2. A secure build is being performed supported by the [Container Hardening Work Bench](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench) tools.
+3. The vulnerabilities found are reviewed and mitigated. This process is transparently documented in the openCode DevGuard Image Repository.
+4. After the mitigation process, the vulnerability scan is run again.
+5. If no unhandled vulnerabilities are found, the hardened image is released. [Shared Container Images - Group](https://gitlab.opencode.de/open-code/oci).
+
+A detailed description of the process can be found in the [DevGuard Documentation](https://devguard.org/concept-guides/container-hardening/process)
+
+To assure, that the image is hardened, matching the openCode process, we followed the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads).
+
+## Notable Details
+
+- **User**: nonroot (53111:53111)
 - **Working Directory**: `/home/nonroot`
 - **Dynamic Linker Symlinks**: 
   - `/lib/ld-linux-aarch64.so.1` → `/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1`

@@ -6,7 +6,7 @@
 
 This base image is the hardened container image provide to you by openCode. The image was hardened for you using the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads) and [openCode DevGuard](https://devguard.opencode.de/)
 
-## Why should i use this image?
+## Why should I use this image?
 
 This image was hardened and has less vulnerabilities, than the normal base image. By using this image you can be sure, that the vulnerabilities, which are present in the standard base image are mitigated following the best practices described in the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads)
 
@@ -63,13 +63,13 @@ bQwmuDfxix8BMRTZB9UHcOX4EgmAHWyXsbANB6tG8XWoqFpYRReNUvsG6g==
 
 - Current Vulnerability Exploitability Exchange (VeX):
 
-  - [base:latest-main-amd64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/vex.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64)
-  - [base:latest-main-arm64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/vex.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64)
+  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/vex.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64)
+  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/vex.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64)
 
 - Current Software Bill of Materials (SBOM):
 
-  - [base:latest-main-amd64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/sbom.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64)
-  - [base:latest-main-arm64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/sbom.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64)
+  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/sbom.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64)
+  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/sbom.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64)
 
 - Current [Badge Programm Results](https://badges.opencode.de/de/?repositoryUrl=https%3A%2F%2Fgitlab.opencode.de%2Fopen-code%2Foci%2Fbase)
 
@@ -87,4 +87,8 @@ To assure, that the image is hardened, matching the openCode process, we followe
 
 ## Notable Details
 
-- User: nonroot (53111:53111)
+- **User**: nonroot (53111:53111)
+- **Working Directory**: `/home/nonroot`
+- **Dynamic Linker Symlinks**: 
+  - `/lib/ld-linux-aarch64.so.1` → `/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1`
+  - `/lib64/ld-linux-x86-64.so.2` → `/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2`

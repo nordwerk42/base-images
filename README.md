@@ -26,7 +26,7 @@ Standard images include:
 - Common shell utilities: `sh`, `ash`, `cat`, `ls`, `cp`, `mv`, `rm`, `mkdir`, `rmdir`, `ln`, `chmod`, `chown`, `grep`, `find`, `ps`, `top`
 - Useful for inspecting the container filesystem and debugging runtime issues
 
-### Debug Image
+### Minimal Image
 
 - `registry.opencode.de/open-code/oci/base:1.0.0-rc.2-minimal`
 

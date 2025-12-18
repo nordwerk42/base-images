@@ -88,11 +88,3 @@ bQwmuDfxix8BMRTZB9UHcOX4EgmAHWyXsbANB6tG8XWoqFpYRReNUvsG6g==
 A detailed description of the process can be found in the [DevGuard Documentation](https://devguard.org/concept-guides/container-hardening/process)
 
 To assure, that the image is hardened, matching the openCode process, we followed the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads).
-
-## Image Details
-
-- **User**: `nonroot` (53111:53111)
-- **Working Directory**: `/home/nonroot`
-- **Dynamic Linker Symlinks**:
-  - `/lib/ld-linux-aarch64.so.1` → `/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1`
-  - `/lib64/ld-linux-x86-64.so.2` → `/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2`

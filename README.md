@@ -19,8 +19,6 @@ You can find all available tags in the [projects container registry](https://git
 For troubleshooting and debugging purposes, Standard variants are available with a minimal busybox shell:
 
 - `registry.opencode.de/open-code/oci/base:1.0.0-rc.2`
-- `registry.opencode.de/open-code/oci/base:1.0.0-rc.2-amd64`
-- `registry.opencode.de/open-code/oci/base:1.0.0-rc.2-arm64`
 
 Standard images include:
 
@@ -31,8 +29,6 @@ Standard images include:
 ### Debug Images
 
 - `registry.opencode.de/open-code/oci/base:1.0.0-rc.2-minimal`
-- `registry.opencode.de/open-code/oci/base:1.0.0-rc.2-minimal-amd64`
-- `registry.opencode.de/open-code/oci/base:1.0.0-rc.2-minimal-arm64`
 
 ## How do I verify this image?
 

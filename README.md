@@ -12,7 +12,7 @@ This image was hardened and has less vulnerabilities, than the normal base image
 
 ## Which tags are available?
 
-You can find all available tags in the [projects container registry](https://gitlab.opencode.de/open-code/oci/base/container_registry).
+You can find all available tags in the [projects container registry](https://gitlab.opencode.de/open-code/oci/base/container_registry/2662).
 
 ### Standard Image
 

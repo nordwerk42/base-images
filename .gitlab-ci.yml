@@ -20,7 +20,7 @@ stages:
   - attestation
 
 .common: &common
-  devguard_asset_name: "@opencode/projects/oci/assets/debian"
+  devguard_asset_name: "@opencode/projects/opencode-shared-container-images/assets/base"
   devguard_token: "$DEVGUARD_TOKEN"
   devguard_api_url: "https://api.devguard.opencode.de"
 

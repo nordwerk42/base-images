@@ -124,7 +124,7 @@
             "name": "openssl",
             "version": "3.5.4-1~deb13u1",
             "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/o/openssl/openssl_3.5.4-1~deb13u1_amd64.deb",
-            "sha256": "17maspc9wc563sysca931ryvns8nvykb496klbzhbpbwly3q8kdq",
+            "sha256": "1bh6y8i97p0aah9gzhfpkc0skyz44xgmpdf50zvmdbxxnz5121y1",
             "dependencies": [
                 {
                     "name": "libc6",

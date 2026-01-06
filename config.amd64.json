@@ -1,6 +1,6 @@
 {
     "name": "base",
-    "tag": "20-amd64",
+    "tag": "amd64",
     "symlinks": [
         {
             "location": "/lib64/ld-linux-x86-64.so.2",
@@ -29,12 +29,12 @@
         {
             "name": "ca-certificates",
             "version": "20250419",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/c/ca-certificates/ca-certificates_20250419_all.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/c/ca-certificates/ca-certificates_20250419_all.deb",
             "sha256": "11610pgnlw4l4rwg73cys60v3h8gx8f9vm30h9nb991sas4hyngg",
             "dependencies": [
                 {
                     "name": "openssl",
-                    "version": "3.5.4-1"
+                    "version": "3.5.4-1~deb13u1"
                 },
                 {
                     "name": "debconf",
@@ -45,21 +45,21 @@
         {
             "name": "debconf",
             "version": "1.5.91",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/d/debconf/debconf_1.5.91_all.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/d/debconf/debconf_1.5.91_all.deb",
             "sha256": "0j8y07k2q9i2w73zn8dvb30ii7q4ivci3a3wzgp4ixr5b5n7xp0x",
             "dependencies": []
         },
         {
             "name": "gcc-14-base",
             "version": "14.2.0-19",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/g/gcc-14/gcc-14-base_14.2.0-19_amd64.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/g/gcc-14/gcc-14-base_14.2.0-19_amd64.deb",
             "sha256": "1xkwhqg51ddrr0fyhqxbqa4lwfsg85v687y5qiw4p0k38bg2as2v",
             "dependencies": []
         },
         {
             "name": "libc6",
             "version": "2.41-12",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/g/glibc/libc6_2.41-12_amd64.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/g/glibc/libc6_2.41-12_amd64.deb",
             "sha256": "02sxg46g0xr8wvx2ppxcxxb89izxgbrk7rb0dc9b43ndjw881zvc",
             "dependencies": [
                 {
@@ -71,7 +71,7 @@
         {
             "name": "libgcc-s1",
             "version": "14.2.0-19",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/g/gcc-14/libgcc-s1_14.2.0-19_amd64.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/g/gcc-14/libgcc-s1_14.2.0-19_amd64.deb",
             "sha256": "0l5ic70fsjx72q1b5k960l3cyvi5g9wa55iisjp1f6hd95xr2w9w",
             "dependencies": [
                 {
@@ -87,7 +87,7 @@
         {
             "name": "libssl3t64",
             "version": "3.5.4-1",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/o/openssl/libssl3t64_3.5.4-1_amd64.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/o/openssl/libssl3t64_3.5.4-1_amd64.deb",
             "sha256": "088mypbkx2232x783kdb0zydhww8v2pv9r1q9gz1j3a1s4dcrc3h",
             "dependencies": [
                 {
@@ -111,7 +111,7 @@
         {
             "name": "libzstd1",
             "version": "1.5.7+dfsg-1",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/libz/libzstd/libzstd1_1.5.7+dfsg-1_amd64.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/libz/libzstd/libzstd1_1.5.7+dfsg-1_amd64.deb",
             "sha256": "1ygf91lv4x3h0vg97sq9rg5gik5zqjdi7j8an2lfn9f9rzm2lsig",
             "dependencies": [
                 {
@@ -122,9 +122,9 @@
         },
         {
             "name": "openssl",
-            "version": "3.5.4-1",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/o/openssl/openssl_3.5.4-1_amd64.deb",
-            "sha256": "0pqzx0845pgy1i82zd2sk1zxgzxdh5r17zh1l1snlvpn4li57pr2",
+            "version": "3.5.4-1~deb13u1",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/o/openssl/openssl_3.5.4-1~deb13u1_amd64.deb",
+            "sha256": "17maspc9wc563sysca931ryvns8nvykb496klbzhbpbwly3q8kdq",
             "dependencies": [
                 {
                     "name": "libc6",
@@ -139,7 +139,7 @@
         {
             "name": "openssl-provider-legacy",
             "version": "3.5.4-1",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/o/openssl/openssl-provider-legacy_3.5.4-1_amd64.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/o/openssl/openssl-provider-legacy_3.5.4-1_amd64.deb",
             "sha256": "0rx4gq11c67av2nn4mv6rwyxp8rx1kvq9x0shix8w6p9n1nrdw2m",
             "dependencies": [
                 {
@@ -155,7 +155,7 @@
         {
             "name": "tzdata",
             "version": "2025b-4+deb13u1",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/t/tzdata/tzdata_2025b-4+deb13u1_all.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/t/tzdata/tzdata_2025b-4+deb13u1_all.deb",
             "sha256": "05qg0j0r7v9iagla32bp20lar4z10zhxfyz9zzpbagshhi8pza0r",
             "dependencies": [
                 {
@@ -167,7 +167,7 @@
         {
             "name": "zlib1g",
             "version": "1.3.dfsg+really1.3.1-1+b1",
-            "url": "https://snapshot.debian.org/archive/debian/20251119T023049Z/pool/main/z/zlib/zlib1g_1.3.dfsg+really1.3.1-1+b1_amd64.deb",
+            "url": "https://snapshot.debian.org/archive/debian/20260106T082005Z/pool/main/z/zlib/zlib1g_1.3.dfsg+really1.3.1-1+b1_amd64.deb",
             "sha256": "03f93bbniyrjr9k0bc3ddphjjzwh3l651sidb0ad2si3sr0ffnq1",
             "dependencies": [
                 {

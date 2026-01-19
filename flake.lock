@@ -3,11 +3,11 @@
     "container-hardening": {
       "flake": false,
       "locked": {
-        "lastModified": 1768822889,
-        "narHash": "sha256-lAL9hIztYLyUBI7Tpf4+s4q/1y2pCbJnRQWlVEwAx8k=",
+        "lastModified": 1768826354,
+        "narHash": "sha256-DmB3JC4gCq7p7yOUDassBTvNisgAEFugMP+nlQMiRfA=",
         "ref": "refs/heads/main",
-        "rev": "72cd89199cc9c3778ad66b05213e1ec1fdc3ca53",
-        "revCount": 301,
+        "rev": "8a047539641a980bb63adc00beb4948a51e287c2",
+        "revCount": 302,
         "type": "git",
         "url": "ssh://git@gitlab.opencode.de/open-code/oci/container-hardening-work-bench.git"
       },

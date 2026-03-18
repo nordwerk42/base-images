@@ -33,7 +33,7 @@ include:
       <<: *common
       devguard_web_ui: "https://devguard.opencode.de"
 
-  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/full-nix@main
+  - component: $CI_SERVER_FQDN/oci-community/tools/container-hardening-work-bench/full-nix@main
     inputs:
       package_name: "base"
       image_variant: "minimal"
@@ -41,7 +41,7 @@ include:
       architectures: ["amd64", "arm64"]
       versions: ["0"]
 
-  - component: $CI_SERVER_FQDN/open-code/oci/container-hardening-work-bench/full-nix@main
+  - component: $CI_SERVER_FQDN/oci-community/tools/container-hardening-work-bench/full-nix@main
     inputs:
       package_name: "base-debug"
       <<: *common

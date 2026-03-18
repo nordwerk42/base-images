@@ -3,26 +3,26 @@
     "container-hardening": {
       "flake": false,
       "locked": {
-        "lastModified": 1768826354,
-        "narHash": "sha256-DmB3JC4gCq7p7yOUDassBTvNisgAEFugMP+nlQMiRfA=",
+        "lastModified": 1773156624,
+        "narHash": "sha256-ATqlM60LVgSOVEUkOPK3cQ5pDAt8lrhWJZaLOu+M9g0=",
         "ref": "refs/heads/main",
-        "rev": "8a047539641a980bb63adc00beb4948a51e287c2",
-        "revCount": 302,
+        "rev": "edc1891c850634e5867cfbab183b3131b5c24156",
+        "revCount": 323,
         "type": "git",
-        "url": "ssh://git@gitlab.opencode.de/open-code/oci/container-hardening-work-bench.git"
+        "url": "ssh://git@gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@gitlab.opencode.de/open-code/oci/container-hardening-work-bench.git"
+        "url": "ssh://git@gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1768564909,
-        "narHash": "sha256-Kell/SpJYVkHWMvnhqJz/8DqQg2b6PguxVWOuadbHCc=",
+        "lastModified": 1773734432,
+        "narHash": "sha256-IF5ppUWh6gHGHYDbtVUyhwy/i7D261P7fWD1bPefOsw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e4bae1bd10c9c57b2cf517953ab70060a828ee6f",
+        "rev": "cda48547b432e8d3b18b4180ba07473762ec8558",
         "type": "github"
       },
       "original": {

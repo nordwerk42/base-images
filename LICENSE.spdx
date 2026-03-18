@@ -2,5 +2,5 @@ SPDXVersion: SPDX-2.0
 DataLicense: CC0-1.0
 PackageName: oc-base
 PackageOriginator: Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
-PackageHomePage: https://gitlab.opencode.de/open-code/oci/base
+PackageHomePage: https://gitlab.opencode.de/oci-community/images/zendis/base
 PackageLicenseDeclared: MIT

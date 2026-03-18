@@ -1,24 +1,24 @@
 # Base Distroless Container Image
 
-![CVSS Badge](https://api.devguard.opencode.de/api/v1/badges/cvss/9d96d768-7d28-4244-a538-49617d14a7ba)
+![CVSS Badge](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64/badges/cvss/)
 
-[Badge Programm Results](https://badges.opencode.de/de/?repositoryUrl=https%3A%2F%2Fgitlab.opencode.de%2Fopen-code%2Foci%2Fbase)
+[Badge Programm Results](https://badges.opencode.de/?repositoryUrl=https%3A%2F%2Fgitlab.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase)
 
-This base image is the hardened container image provide to you by openCode. The image was hardened for you using the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads) and [openCode DevGuard](https://devguard.opencode.de/)
+This base image is the hardened container image provide to you by openCode. The image was hardened for you using the [Container Hardening guide](https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads) and [openCode DevGuard](https://devguard.opencode.de/)
 
 ## Why should I use this image?
 
-This image was hardened and has less vulnerabilities, than the normal base image. By using this image you can be sure, that the vulnerabilities, which are present in the standard base image are mitigated following the best practices described in the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads)
+This image was hardened and has less vulnerabilities, than the normal base image. By using this image you can be sure, that the vulnerabilities, which are present in the standard base image are mitigated following the best practices described in the [Container Hardening guide](https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads)
 
 ## Which tags are available?
 
-You can find all available tags in the [projects container registry](https://gitlab.opencode.de/open-code/oci/base/container_registry/2662).
+You can find all available tags in the [projects container registry](https://gitlab.opencode.de/oci-community/images/zendis/base/container_registry/2662).
 
 ### Standard Image
 
 For troubleshooting and debugging purposes, Standard variants are available with a minimal busybox shell:
 
-- `registry.opencode.de/open-code/oci/base:1.0.0-rc.2`
+- `registry.opencode.de/oci-community/images/zendis/base:1.0.0-rc.2`
 
 Standard images include:
 
@@ -28,7 +28,7 @@ Standard images include:
 
 ### Minimal Image
 
-- `registry.opencode.de/open-code/oci/base:1.0.0-rc.2-minimal`
+- `registry.opencode.de/oci-community/images/zendis/base:1.0.0-rc.2-minimal`
 
 ## How do I verify this image?
 
@@ -41,7 +41,7 @@ You should pin the digest `@sha256:...` in addition of your tag to ensure integr
 Verify the authenticity and integrity of the image:
 
 ```sh
-cosign verify registry.opencode.de/open-code/oci/base:1.0.0-rc.2 --key cosign.pub --insecure-ignore-tlog=true
+cosign verify registry.opencode.de/oci-community/images/zendis/base:1.0.0-rc.2 --key cosign.pub --insecure-ignore-tlog=true
 ```
 
 **Public Key:**
@@ -63,27 +63,25 @@ bQwmuDfxix8BMRTZB9UHcOX4EgmAHWyXsbANB6tG8XWoqFpYRReNUvsG6g==
 
 - Current Vulnerability Exploitability Exchange (VeX):
 
-  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/vex.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64)
-  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/vex.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64)
+  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64/vex.json/)
+  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64/vex.json/)
 
 - Current Software Bill of Materials (SBOM):
 
-  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/sbom.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64)
-  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/7315af1a-f95e-40ef-801e-613ec7ac8427/sbom.json?ref=main&artifactName=pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Fopen-code%2Foci%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64)
-
-- Current [Badge Programm Results](https://badges.opencode.de/de/?repositoryUrl=https%3A%2F%2Fgitlab.opencode.de%2Fopen-code%2Foci%2Fbase)
+  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64/sbom.json/)
+  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64/sbom.json/)
 
 ## How was this image hardened?
 
 1. The image is scanned for vulnerabilities using [openCode DevGuard](https://devguard.opencode.de/).
-2. A secure build is being performed supported by the [Container Hardening Work Bench](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench) tools.
+2. A secure build is being performed supported by the [Container Hardening Work Bench](https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench) tools.
 3. The vulnerabilities found are reviewed and mitigated. This process is transparently documented in the openCode DevGuard Image Repository.
 4. After the mitigation process, the vulnerability scan is run again.
 5. If no unhandled vulnerabilities are found, the hardened image is released. [Shared Container Images - Group](https://gitlab.opencode.de/open-code/oci).
 
 A detailed description of the process can be found in the [DevGuard Documentation](https://devguard.org/concept-guides/container-hardening/process)
 
-To assure, that the image is hardened, matching the openCode process, we followed the [Container Hardening guide](https://gitlab.opencode.de/open-code/oci/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads).
+To assure, that the image is hardened, matching the openCode process, we followed the [Container Hardening guide](https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads).
 
 ## Notable Details
 

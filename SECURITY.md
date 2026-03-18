@@ -6,4 +6,4 @@ You can report a vulnerability or anomaly to the maintaining team. This will ini
 
 * You can send your report to the following e-mail address: [security@zendis.de](mailto:security@zendis.de)
 
-* You can also create a [confidential issue in this repository](https://gitlab.opencode.de/open-code/oci/base/-/issues/new?issue%5Bconfidential%5D=true&issuable_template=security-advisory).
+* You can also create a [confidential issue in this repository](https://gitlab.opencode.de/oci-community/images/zendis/base/-/issues/new?issue%5Bconfidential%5D=true&issuable_template=security-advisory).

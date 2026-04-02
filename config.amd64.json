@@ -357,8 +357,8 @@
     ],
     "symlinks": [
         {
-            "location": "/usr/share/zoneinfo/UTC",
-            "pointsTo": "/etc/localtime"
+            "location": "/etc/localtime",
+            "pointsTo": "/usr/share/zoneinfo/UTC"
         },
         {
             "location": "/lib64/ld-linux-x86-64.so.2",

@@ -58,11 +58,16 @@ check_file "tzdata UTC zone"         /usr/share/zoneinfo/UTC
 check_file "tzdata Europe/Berlin"    /usr/share/zoneinfo/Europe/Berlin
 check_file "localtime"               /etc/localtime
 
-# libc6
-check_file "libc.so"                 /lib/x86_64-linux-gnu/libc.so.6
+# libc6 / libssl3 — paths are architecture-specific
+ARCH="$(uname -m)"
+case "$ARCH" in
+  x86_64)   TRIPLET="x86_64-linux-gnu" ;;
+  aarch64)  TRIPLET="aarch64-linux-gnu" ;;
+  *)        TRIPLET="$ARCH-linux-gnu" ;;
+esac
 
-# libssl3
-check_file "libssl.so"               /usr/lib/x86_64-linux-gnu/libssl.so.3
+check_file "libc.so"    /lib/${TRIPLET}/libc.so.6
+check_file "libssl.so"  /usr/lib/${TRIPLET}/libssl.so.3
 
 echo ""
 echo "=== all packages: dpkg status ==="

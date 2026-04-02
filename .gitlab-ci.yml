@@ -52,10 +52,23 @@ include:
 ##############################################
 ## Smoke test top-level packages
 #######################
-test_toplevel_packages:
+test_toplevel_packages_amd64:
   stage: smoke-test
   image:
     name: $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_SLUG}-amd64
+    pull_policy: always
+    entrypoint: [""]
+  script:
+    - sh test/test_toplevel_packages.sh
+  only:
+    - main
+
+test_toplevel_packages_arm64:
+  stage: smoke-test
+  tags:
+    - arm
+  image:
+    name: $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_SLUG}-arm64
     pull_policy: always
     entrypoint: [""]
   script:

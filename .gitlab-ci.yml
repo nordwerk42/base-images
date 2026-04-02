@@ -55,7 +55,7 @@ include:
 test_toplevel_packages:
   stage: smoke-test
   image:
-    name: $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_SLUG}-debug-amd64
+    name: $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_SLUG}-amd64
     pull_policy: always
     entrypoint: [""]
   script:

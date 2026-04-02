@@ -357,8 +357,8 @@
     ],
     "symlinks": [
         {
-            "location": "/etc/localtime",
-            "pointsTo": "/usr/share/zoneinfo/UTC"
+            "location": "/lib/ld-linux-aarch64.so.1",
+            "pointsTo": "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1"
         }
     ],
     "name": "base",

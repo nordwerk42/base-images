@@ -53,8 +53,7 @@
                 symlinks = config.symlinks;
                 debPackages = config.packages;
                 extraFakeRootCommands = ''
-                  rm -rf ./lib
-                  ln -s usr/lib ./lib
+                  ln -sf /usr/share/zoneinfo/UTC ./etc/localtime
                 '';
               };
 

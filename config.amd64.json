@@ -359,10 +359,6 @@
         {
             "location": "/lib64/ld-linux-x86-64.so.2",
             "pointsTo": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
-        },
-        {
-            "location": "/etc/localtime",
-            "pointsTo": "/usr/share/zoneinfo/UTC"
         }
     ],
     "name": "base",

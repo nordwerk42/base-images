@@ -359,10 +359,6 @@
         {
             "location": "/etc/localtime",
             "pointsTo": "/usr/share/zoneinfo/UTC"
-        },
-        {
-            "location": "/lib",
-            "pointsTo": "usr/lib"
         }
     ],
     "name": "base",

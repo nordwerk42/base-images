@@ -17,7 +17,7 @@
 
       # Target systems (what you're building for)
       targetSystems = [ "x86_64-linux" "aarch64-linux" ];
-      
+
       versions = [ "0" ];
 
       # Helper: Convert system to architecture name
@@ -52,8 +52,12 @@
                 tag = config.tag;
                 symlinks = config.symlinks;
                 debPackages = config.packages;
+                extraFakeRootCommands = ''
+                  rm -rf ./lib
+                  ln -s usr/lib ./lib
+                '';
               };
-              
+
               # The debug image package (with busybox shell)
               debugImage = distrolessHelpers.buildDebugImage {
                 inherit customPackages;
@@ -62,7 +66,7 @@
                 symlinks = config.symlinks;
                 debPackages = config.packages;
               };
-              
+
               # The SBOM package
               sbom = sbomGen.forImage {
                 inherit customPackages;
@@ -77,7 +81,7 @@
                 topLevelPackages = config.topLevelPackages ++ distrolessHelpers.debugPackages;
               };
             };
-          
+
           # Build all packages: for each version, for each target system
           makePackagesForVersion = version:
             builtins.listToAttrs (map (targetSystem:
@@ -120,10 +124,10 @@
                 value = pkg.debugSbom;
               }
             ) targetSystems);
-          
+
           # Combine packages for all Node.js versions
           allVersionPackages = map makePackagesForVersion versions;
-          
+
           # Merge all version packages into one attribute set
           mergedPackages = builtins.foldl' (a: b: a // b) {} allVersionPackages;
         in mergedPackages;

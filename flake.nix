@@ -52,9 +52,6 @@
                 tag = config.tag;
                 symlinks = config.symlinks;
                 debPackages = config.packages;
-                extraFakeRootCommands = ''
-                  ln -sf /usr/share/zoneinfo/UTC ./etc/localtime
-                '';
               };
 
               # The debug image package (with busybox shell)

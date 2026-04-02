@@ -18,6 +18,7 @@ stages:
   - test
   - oci-image
   - attestation
+  - smoke-test
 
 .common: &common
   devguard_asset_name: "@opencode/projects/zendis-3/assets/base"
@@ -47,3 +48,17 @@ include:
       <<: *common
       architectures: ["amd64", "arm64"]
       versions: ["0"]
+
+##############################################
+## Smoke test top-level packages
+#######################
+test_toplevel_packages:
+  stage: smoke-test
+  image:
+    name: $CI_REGISTRY_IMAGE:0-${CI_COMMIT_REF_SLUG}-debug-amd64
+    pull_policy: always
+    entrypoint: [""]
+  script:
+    - sh test/test_toplevel_packages.sh
+  only:
+    - main

@@ -4,7 +4,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     container-hardening = {
-      # Optional: pin to specific commit for reproducibility
       url =
         "git+ssh://git@gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git";
       flake = false;

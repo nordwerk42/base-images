@@ -21,7 +21,7 @@ stages:
   - smoke-test
 
 .common: &common
-  devguard_asset_name: "@opencode/projects/zendis-3/assets/base"
+  devguard_asset_name: "@opencode/projects/shared-container-images-container-images-zendis/assets/base"
   devguard_token: "$DEVGUARD_TOKEN"
   devguard_api_url: "https://api.devguard.opencode.de"
 

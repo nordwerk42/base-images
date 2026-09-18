@@ -21,21 +21,23 @@
       versions = [ "0" ];
 
       # Helper: Convert system to architecture name
-      systemToArch = system: if system == "x86_64-linux" then "amd64" else "arm64";
+      systemToArch = system:
+        if system == "x86_64-linux" then "amd64" else "arm64";
 
       # Generate packages for a specific build system
       packagesForBuildSystem = buildSystem:
         let
-      # Build a single Node.js image for a specific target system and version
-      buildPackage = targetSystem: version:
-        let
-          arch = systemToArch targetSystem;
-          configFile = ./config.${arch}.json;
-          config = builtins.fromJSON (builtins.readFile configFile);
-          distrolessHelpers = import "${container-hardening}/nix/build-distroless.nix" {
-                inherit pkgs nixpkgs;
-                debianArch = arch;
-              };
+          # Build a single Node.js image for a specific target system and version
+          buildPackage = targetSystem: version:
+            let
+              arch = systemToArch targetSystem;
+              configFile = ./config.${arch}.json;
+              config = builtins.fromJSON (builtins.readFile configFile);
+              distrolessHelpers =
+                import "${container-hardening}/nix/build-distroless.nix" {
+                  inherit pkgs nixpkgs;
+                  debianArch = arch;
+                };
               pkgs = distrolessHelpers.getPkgsFor buildSystem targetSystem;
 
               sbomGen = import "${container-hardening}/nix/sbom.nix" {
@@ -43,7 +45,7 @@
                 debianArch = arch;
               };
 
-              customPackages = [];
+              customPackages = [ ];
             in {
               # The regular image package
               image = distrolessHelpers.buildImage {
@@ -52,6 +54,9 @@
                 tag = config.tag;
                 symlinks = config.symlinks;
                 debPackages = config.packages;
+                extraFakeRootCommands = ''
+                  ln -sf /usr/share/zoneinfo/UTC ./etc/localtime
+                '';
               };
 
               # The debug image package (with busybox shell)
@@ -61,6 +66,9 @@
                 tag = config.tag;
                 symlinks = config.symlinks;
                 debPackages = config.packages;
+                extraFakeRootCommands = ''
+                  ln -sf /usr/share/zoneinfo/UTC ./etc/localtime
+                '';
               };
 
               # The SBOM package
@@ -74,7 +82,8 @@
               debugSbom = sbomGen.forImage {
                 purl = "pkg:oci/base";
                 packages = config.packages ++ distrolessHelpers.debugPackages;
-                topLevelPackages = config.topLevelPackages ++ distrolessHelpers.debugPackages;
+                topLevelPackages = config.topLevelPackages
+                  ++ distrolessHelpers.debugPackages;
               };
             };
 
@@ -88,44 +97,38 @@
                 # Create attribute name like "base-22-amd64"
                 name = "base-${version}-${arch}";
                 value = pkg.image;
-              }
-            ) targetSystems ++
-            map (targetSystem:
-              let
-                arch = systemToArch targetSystem;
-                pkg = buildPackage targetSystem version;
-              in {
-                # Create attribute name like "base-debug-22-amd64"
-                name = "base-debug-${version}-${arch}";
-                value = pkg.debugImage;
-              }
-            ) targetSystems ++
-            map (targetSystem:
-              let
-                arch = systemToArch targetSystem;
-                pkg = buildPackage targetSystem version;
-              in {
-                # Create attribute name like "base-22-amd64-sbom"
-                name = "base-${version}-${arch}-sbom";
-                value = pkg.sbom;
-              }
-            ) targetSystems ++
-            map (targetSystem:
-              let
-                arch = systemToArch targetSystem;
-                pkg = buildPackage targetSystem version;
-              in {
-                # Create attribute name like "base-debug-22-amd64-sbom"
-                name = "base-debug-${version}-${arch}-sbom";
-                value = pkg.debugSbom;
-              }
-            ) targetSystems);
+              }) targetSystems ++ map (targetSystem:
+                let
+                  arch = systemToArch targetSystem;
+                  pkg = buildPackage targetSystem version;
+                in {
+                  # Create attribute name like "base-debug-22-amd64"
+                  name = "base-debug-${version}-${arch}";
+                  value = pkg.debugImage;
+                }) targetSystems ++ map (targetSystem:
+                  let
+                    arch = systemToArch targetSystem;
+                    pkg = buildPackage targetSystem version;
+                  in {
+                    # Create attribute name like "base-22-amd64-sbom"
+                    name = "base-${version}-${arch}-sbom";
+                    value = pkg.sbom;
+                  }) targetSystems ++ map (targetSystem:
+                    let
+                      arch = systemToArch targetSystem;
+                      pkg = buildPackage targetSystem version;
+                    in {
+                      # Create attribute name like "base-debug-22-amd64-sbom"
+                      name = "base-debug-${version}-${arch}-sbom";
+                      value = pkg.debugSbom;
+                    }) targetSystems);
 
           # Combine packages for all Node.js versions
           allVersionPackages = map makePackagesForVersion versions;
 
           # Merge all version packages into one attribute set
-          mergedPackages = builtins.foldl' (a: b: a // b) {} allVersionPackages;
+          mergedPackages =
+            builtins.foldl' (a: b: a // b) { } allVersionPackages;
         in mergedPackages;
     in {
       packages = builtins.listToAttrs (map (buildSystem: {

@@ -9,11 +9,12 @@
         "rev": "21f38fed9c32a39a694ba0fec32b933bfc0dbcd0",
         "revCount": 356,
         "type": "git",
-        "url": "ssh://git@gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git"
+        "url": "https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git"
+        "url": "https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git",
+        "rev": "21f38fed9c32a39a694ba0fec32b933bfc0dbcd0"
       }
     },
     "devguard": {
@@ -31,11 +32,12 @@
         "rev": "113c19d90f439d48afcb6ba0dd5d9660dab84c98",
         "revCount": 6453,
         "type": "git",
-        "url": "ssh://git@gitlab.opencode.de/oci-community/images/l3montree/devguard/devguard.git"
+        "url": "https://gitlab.opencode.de/oci-community/images/l3montree/devguard/devguard.git"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@gitlab.opencode.de/oci-community/images/l3montree/devguard/devguard.git"
+        "url": "https://gitlab.opencode.de/oci-community/images/l3montree/devguard/devguard.git",
+        "rev": "113c19d90f439d48afcb6ba0dd5d9660dab84c98"
       }
     },
     "nixpkgs": {

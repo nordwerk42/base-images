@@ -4,7 +4,7 @@
   inputs = { 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     container-hardening = {
-      url = "git+ssh://git@gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git";
+      url = "git+https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git?rev=21f38fed9c32a39a694ba0fec32b933bfc0dbcd0";
       flake = false;
     };
   };

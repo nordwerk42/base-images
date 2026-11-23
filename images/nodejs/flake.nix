@@ -6,11 +6,11 @@
     container-hardening = {
       # Optional: pin to specific commit for reproducibility
       url =
-        "git+ssh://git@gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git";
+        "git+https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git?rev=21f38fed9c32a39a694ba0fec32b933bfc0dbcd0";
       flake = false;
     };
     devguard.url =
-      "git+ssh://git@gitlab.opencode.de/oci-community/images/l3montree/devguard/devguard.git";
+      "git+https://gitlab.opencode.de/oci-community/images/l3montree/devguard/devguard.git?rev=113c19d90f439d48afcb6ba0dd5d9660dab84c98";
   };
 
   outputs = { self, container-hardening, nixpkgs, devguard, ... }:

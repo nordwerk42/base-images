@@ -1,0 +1,33 @@
+# Builder stage: create a virtualenv and install all Python deps there
+FROM python:3.13-slim-bookworm AS builder
+
+WORKDIR /app
+
+COPY requirements.txt ./
+# Use the virtualenv's bin dir first
+# Install build tools, create venv, install requirements into the venv, then clean up
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends build-essential \
+	&& python3 -m venv /opt/venv \
+	&& /opt/venv/bin/pip install --upgrade pip setuptools wheel \
+	&& /opt/venv/bin/pip install --no-cache-dir -r requirements.txt \
+	&& apt-get purge -y --auto-remove build-essential \
+	&& rm -rf /var/lib/apt/lists/*
+
+COPY app.py ./
+
+# Final runtime stage: copy the venv from the builder so all deps are present
+FROM registry.opencode.de/oci-community/images/zendis/python3:3.13
+
+WORKDIR /app
+
+# Copy the virtualenv with all installed packages from the builder
+COPY --from=builder --chown=53111:53111 /opt/venv /opt/venv
+# Copy application code
+COPY --from=builder --chown=53111:53111 /app /app
+
+ENV PATH="/opt/venv/bin:$PATH"
+EXPOSE 8080
+
+# Use gunicorn from the virtualenv to serve the Flask app
+CMD ["/opt/venv/bin/gunicorn", "-b", "0.0.0.0:8080", "app:app", "--workers", "2"]

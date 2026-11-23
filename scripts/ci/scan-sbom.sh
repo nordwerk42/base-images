@@ -17,7 +17,7 @@ for f in vex/*.json; do
   vex_grype+=(--vex "$f")
 done
 
-packages=$(jq '[.components[]? | select(.purl | startswith("pkg:deb/"))] | length' "$sbom")
+packages=$(jq '[.components[]? | select((.purl // "") | startswith("pkg:deb/"))] | length' "$sbom")
 echo "SBOM: $packages Debian packages"
 if [ "$packages" -eq 0 ]; then
   echo "SBOM lists no Debian packages, a scan would find nothing" >&2

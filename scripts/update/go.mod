@@ -2,7 +2,7 @@ module gitlab.opencode.de/oci-community/images/zendis/base/scripts/update
 
 go 1.27.0
 
-require gitlab.opencode.de/open-code/oci/container-hardening-work-bench v0.0.0
+require gitlab.opencode.de/open-code/oci/container-hardening-work-bench v1.0.0
 
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

@@ -1,9 +1,10 @@
 # Security policy
 
-## Reporting a vulnerability
+Please report vulnerabilities in this repository's build or images through
+[GitHub private vulnerability reporting](https://github.com/nordwerk42/base-images/security/advisories/new).
 
-You can report a vulnerability or anomaly to the maintaining team. This will initiate the process of coordinated vulnerability disclosure. The team will then endeavor to develop security patches within a week if possible. The vulnerability will then be publicized as part of the next release. If you wish, you can also be published as a reporter.
+Vulnerabilities in Debian packages are fixed by rebuilding against a newer Debian snapshot. The daily
+update job does this automatically once Debian has published a fix.
 
-* You can send your report to the following e-mail address: [security@zendis.de](mailto:security@zendis.de)
-
-* You can also create a [confidential issue in this repository](https://gitlab.opencode.de/oci-community/images/zendis/base/-/issues/new?issue%5Bconfidential%5D=true&issuable_template=security-advisory).
+Vulnerabilities in the hardening tooling itself should also be reported upstream to ZenDiS
+(security@zendis.de).

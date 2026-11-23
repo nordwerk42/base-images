@@ -1,92 +1,68 @@
-# Base Distroless Container Image
+# base-images
 
-![CVSS Badge](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64/badges/cvss/)
+Distroless OCI base images built from Debian 13 (trixie) packages with Nix.
 
-[Badge Programm Results](https://badges.opencode.de/?repositoryUrl=https%3A%2F%2Fgitlab.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase)
+This repository is a fork of [ZenDiS `base`](https://gitlab.opencode.de/oci-community/images/zendis/base)
+and uses the [Container Hardening Work Bench](https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench).
+The build idea and the tooling come from there. What differs here:
 
-This base image is the hardened container image provide to you by openCode. The image was hardened for you using the [Container Hardening guide](https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads) and [openCode DevGuard](https://devguard.opencode.de/)
+| | This fork |
+|---|---|
+| Rebuild | automatic: a daily job resolves the newest Debian snapshot and opens a pull request |
+| Signature | keyless with Sigstore (GitHub OIDC identity of the build workflow, Rekor transparency log) |
+| Provenance | SLSA build provenance attestation |
+| SBOM | CycloneDX, attached to every image as an attestation |
+| Scanning | Trivy and Grype on every build; accepted findings only via OpenVEX in `vex/` |
+| Pins | every action by commit SHA, Renovate keeps them current |
 
-## Why should I use this image?
+See [docs/upstream.md](docs/upstream.md) for what was taken over and what was changed.
 
-This image was hardened and has less vulnerabilities, than the normal base image. By using this image you can be sure, that the vulnerabilities, which are present in the standard base image are mitigated following the best practices described in the [Container Hardening guide](https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads)
+## Images
 
-## Which tags are available?
+| Image | Content |
+|---|---|
+| `ghcr.io/nordwerk42/base:13-minimal` | glibc, OpenSSL, CA certificates, tzdata. No shell, no package manager. User `53111:53111`, working directory `/home/nonroot`. |
 
-You can find all available tags in the [projects container registry](https://gitlab.opencode.de/oci-community/images/zendis/base/container_registry/2662).
+Tags: `13-minimal` (moves with every rebuild), `13-minimal-<debian-snapshot>` (for example `13-minimal-20261122T000000Z`) and `sha-<commit>`. `13` is the Debian release. Pin the digest in addition to the tag.
 
-### Standard Image
-
-For troubleshooting and debugging purposes, Standard variants are available with a minimal busybox shell:
-
-- `registry.opencode.de/oci-community/images/zendis/base:1.0.0-rc.2`
-
-Standard images include:
-
-- Busybox static binary at `/bin/busybox`
-- Common shell utilities: `sh`, `ash`, `cat`, `ls`, `cp`, `mv`, `rm`, `mkdir`, `rmdir`, `ln`, `chmod`, `chown`, `grep`, `find`, `ps`, `top`
-- Useful for inspecting the container filesystem and debugging runtime issues
-
-### Minimal Image
-
-- `registry.opencode.de/oci-community/images/zendis/base:1.0.0-rc.2-minimal`
-
-## How do I verify this image?
-
-### 1. Pin the digest for integrity
-
-You should pin the digest `@sha256:...` in addition of your tag to ensure integrity.
-
-### 2. Verify the image signature with Cosign
-
-Verify the authenticity and integrity of the image:
+## Verify
 
 ```sh
-cosign verify registry.opencode.de/oci-community/images/zendis/base:1.0.0-rc.2 --key cosign.pub --insecure-ignore-tlog=true
+IMAGE=ghcr.io/nordwerk42/base:13-minimal
+
+cosign verify "$IMAGE" \
+  --certificate-identity-regexp '^https://github\.com/nordwerk42/base-images/\.github/workflows/build\.yml@refs/heads/main$' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+
+cosign verify-attestation "$IMAGE" --type cyclonedx \
+  --certificate-identity-regexp '^https://github\.com/nordwerk42/base-images/\.github/workflows/build\.yml@refs/heads/main$' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+
+gh attestation verify "oci://$IMAGE" --repo nordwerk42/base-images
 ```
 
-**Public Key:**
+## Build locally
 
+```sh
+nix build .#base-0-amd64          # image tarball (docker load < result)
+nix build .#base-0-amd64-sbom     # CycloneDX SBOM
+nix build .#base-debug-0-amd64    # same image plus busybox, for debugging
 ```
------BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXdVDz6n39PDj9ZezqYgmZ/qCDV4h
-bQwmuDfxix8BMRTZB9UHcOX4EgmAHWyXsbANB6tG8XWoqFpYRReNUvsG6g==
------END PUBLIC KEY-----
+
+Replace `amd64` with `arm64` on an aarch64 machine.
+
+## Update packages
+
+```sh
+git clone https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git ../container-hardening-work-bench
+git -C ../container-hardening-work-bench checkout "$(jq -r '.nodes["container-hardening"].locked.rev' flake.lock)"
+(cd scripts/update && go run . -config ../../config -revertSnapshotOnly)
 ```
 
-### 3. Review attestations and reports
+The package list lives in `config.amd64.json` and `config.arm64.json`. Each package is pinned to a
+snapshot.debian.org URL with its hash.
 
-- SBOM
-- VeX
-- Build Provenance
-- Badge Programm Report (SARIF)
-- Test Results (SARIF)
+## License
 
-- Current Vulnerability Exploitability Exchange (VeX):
-
-  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64/vex.json/)
-  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64/vex.json/)
-
-- Current Software Bill of Materials (SBOM):
-
-  - [base:main-amd64](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Damd64%26tag%3Dmain-amd64/sbom.json/)
-  - [base:main-arm64](https://api.devguard.opencode.de/api/v1/public/b9ee43d9-b565-4c2e-bbd7-c1e7fcfea6ea/refs/main/artifacts/pkg%3Aoci%2Fbase%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fbase%26arch%3Darm64%26tag%3Dmain-arm64/sbom.json/)
-
-## How was this image hardened?
-
-1. The image is scanned for vulnerabilities using [openCode DevGuard](https://devguard.opencode.de/).
-2. A secure build is being performed supported by the [Container Hardening Work Bench](https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench) tools.
-3. The vulnerabilities found are reviewed and mitigated. This process is transparently documented in the openCode DevGuard Image Repository.
-4. After the mitigation process, the vulnerability scan is run again.
-5. If no unhandled vulnerabilities are found, the hardened image is released. [Shared Container Images - Group](https://gitlab.opencode.de/open-code/oci).
-
-A detailed description of the process can be found in the [DevGuard Documentation](https://devguard.org/concept-guides/container-hardening/process)
-
-To assure, that the image is hardened, matching the openCode process, we followed the [Container Hardening guide](https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench/-/blob/main/README.md?ref_type=heads).
-
-## Notable Details
-
-- **User**: nonroot (53111:53111)
-- **Working Directory**: `/home/nonroot`
-- **Dynamic Linker Symlinks**: 
-  - `/lib/ld-linux-aarch64.so.1` → `/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1`
-  - `/lib64/ld-linux-x86-64.so.2` → `/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2`
+MIT, see [LICENSE.md](LICENSE.md). Copyright of the original work: Zentrum für Digitale Souveränität
+der Öffentlichen Verwaltung (ZenDiS) GmbH.

@@ -1,0 +1,21 @@
+module gitlab.opencode.de/oci-community/images/zendis/nodejs/scripts/update
+
+go 1.27.0
+
+require gitlab.opencode.de/open-code/oci/container-hardening-work-bench v0.0.0
+
+require (
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/schollz/progressbar/v3 v3.19.1 // indirect
+	github.com/spf13/cobra v1.10.2 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/term v0.45.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+)
+
+replace gitlab.opencode.de/open-code/oci/container-hardening-work-bench => ../../../container-hardening-work-bench

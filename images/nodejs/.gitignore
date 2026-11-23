@@ -1,0 +1,7 @@
+result
+.DS_Store
+vulnerability-scan_*
+*-amd64
+*-arm64
+node_modules
+scripts/update/update

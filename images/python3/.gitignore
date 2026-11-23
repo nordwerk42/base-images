@@ -1,0 +1,6 @@
+result
+.DS_Store
+vulnerability-scan_*
+*-linux-amd64
+*-linux-arm64
+/scripts/update/update

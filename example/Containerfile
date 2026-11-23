@@ -1,0 +1,13 @@
+FROM golang:1.25 AS builder
+WORKDIR /app
+COPY . .
+RUN CGO_ENABLED=0 go build -o myapp
+
+
+FROM static:latest
+
+COPY --from=builder --chmod=755 --chown=53111:53111 /app/myapp /myapp
+
+USER 53111
+
+CMD [ "/myapp" ]

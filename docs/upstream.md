@@ -34,6 +34,7 @@ and redo the HTTPS change below if the flake inputs changed.
 | `.gitlab-ci.yml` and `.gitlab/` removed | the build runs on GitHub Actions (`.github/workflows/`) |
 | `cosign.pub` removed | images here are signed keyless; the ZenDiS key does not sign them |
 | Runtime images: `.gitlab-ci.yml`, `.gitlab/`, `cosign.pub` removed; flake inputs (work bench, DevGuard scanner) over HTTPS at the locked revision | as for `base` |
+| `static` runs as `53111:53111` in `/home/nonroot` | upstream sets no user, so the image ran as root |
 | Runtime SBOMs get a CPE for CPython and Node.js in CI (`scripts/ci/prepare-sbom.sh`) | upstream lists them with a `pkg:github.com/...` purl only, which no scanner matches against advisories |
 | README and SECURITY rewritten | registry, verification and reporting differ |
 

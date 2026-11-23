@@ -81,7 +81,8 @@
                 "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
                 "TZDIR=${pkgs.tzdata}/share/zoneinfo"
               ];
-              WorkingDir = "/";
+              User = "53111:53111";
+              WorkingDir = "/home/nonroot";
             };
             fakeRootCommands = ''
               chmod 1777 tmp

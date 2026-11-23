@@ -1,0 +1,81 @@
+name: update
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: update
+
+jobs:
+  debian:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: base-images
+
+      - name: Check out the pinned work bench
+        run: |
+          rev=$(jq -r '.nodes["container-hardening"].locked.rev' base-images/flake.lock)
+          git init -q container-hardening-work-bench
+          git -C container-hardening-work-bench fetch -q --depth 1 \
+            https://gitlab.opencode.de/oci-community/tools/container-hardening-work-bench.git "$rev"
+          git -C container-hardening-work-bench checkout -q FETCH_HEAD
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: base-images/scripts/update/go.mod
+          cache: false
+
+      - name: Resolve newest Debian packages
+        id: update
+        working-directory: base-images/scripts/update
+        run: |
+          set +e
+          go run . -config ../../config -revertSnapshotOnly -failIfNoUpdate > ../../../update.log 2>&1
+          rc=$?
+          set -e
+          cat ../../../update.log
+          case $rc in
+            0) echo "changed=true" >> "$GITHUB_OUTPUT" ;;
+            3) echo "changed=false" >> "$GITHUB_OUTPUT" ;;
+            *) exit "$rc" ;;
+          esac
+
+      - name: Open pull request
+        if: steps.update.outputs.changed == 'true'
+        working-directory: base-images
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          snapshot=$(grep -ohE 'snapshot\.debian\.org/archive/debian(-security)?/[0-9]{8}T[0-9]{6}Z' config.amd64.json \
+            | grep -oE '[0-9]{8}T[0-9]{6}Z' | sort -u | tail -1)
+          branch="update/debian-${snapshot}"
+          if git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null; then
+            echo "branch ${branch} exists already"
+            exit 0
+          fi
+          git config user.name "Base-Images-Entwicklung"
+          git config user.email "dev@base-images.invalid"
+          git switch -c "$branch"
+          git add config.amd64.json config.arm64.json
+          git commit -q -m "Update Debian packages to snapshot ${snapshot}"
+          git push -q origin "$branch"
+          {
+            echo "Debian packages resolved against snapshot \`${snapshot}\`."
+            echo
+            echo '```'
+            cat ../update.log
+            echo '```'
+          } > ../body.md
+          gh pr create --base main --head "$branch" --title "Update Debian packages to snapshot ${snapshot}" --body-file ../body.md
+          # Pull requests opened with GITHUB_TOKEN do not trigger workflows; start the build explicitly.
+          gh workflow run build.yml --ref "$branch"

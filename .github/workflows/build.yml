@@ -177,6 +177,7 @@ jobs:
           ARM64=$(digest_of "${REGISTRY_IMAGE}:sha-${SHA::7}-arm64")
           docker buildx imagetools create \
             --tag "${REGISTRY_IMAGE}:${DEBIAN_RELEASE}-minimal" \
+            --tag "${REGISTRY_IMAGE}:latest" \
             --tag "${REGISTRY_IMAGE}:${DEBIAN_RELEASE}-minimal-${SNAPSHOT}" \
             --tag "${REGISTRY_IMAGE}:sha-${SHA::7}" \
             "${REGISTRY_IMAGE}@${AMD64}" "${REGISTRY_IMAGE}@${ARM64}"

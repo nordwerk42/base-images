@@ -1,0 +1,99 @@
+name: promote
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      now:
+        description: "Promote latest without waiting (security fix)"
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: promote
+
+env:
+  REGISTRY_IMAGE: ghcr.io/${{ github.repository_owner }}/base
+  DEBIAN_RELEASE: "13"
+  MIN_AGE_DAYS: "3"
+  IDENTITY: ^https://github\.com/${{ github.repository }}/\.github/workflows/build\.yml@refs/heads/main$
+  ISSUER: https://token.actions.githubusercontent.com
+
+jobs:
+  promote:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pick candidate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NOW: ${{ inputs.now }}
+        run: |
+          digest_of() { docker buildx imagetools inspect --format '{{json .Manifest}}' "$1" | jq -r .digest; }
+          latest=$(digest_of "${REGISTRY_IMAGE}:latest")
+          stable=$(digest_of "${REGISTRY_IMAGE}:stable" 2>/dev/null || true)
+          echo "latest $latest, stable ${stable:-none}" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$latest" = "$stable" ]; then
+            echo "stable is already latest" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          created=$(gh api --paginate "/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/base/versions" \
+            --jq ".[] | select(.name == \"$latest\") | .created_at")
+          age=$(( ( $(date +%s) - $(date -d "$created" +%s) ) / 86400 ))
+          echo "latest published $created, $age days ago" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$NOW" != "true" ] && [ "$age" -lt "$MIN_AGE_DAYS" ]; then
+            echo "younger than $MIN_AGE_DAYS days, not promoted" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "candidate=$latest" >> "$GITHUB_ENV"
+
+      - name: Verify signature and fetch SBOMs
+        if: env.candidate != ''
+        run: |
+          cosign verify "${REGISTRY_IMAGE}@${candidate}" \
+            --certificate-identity-regexp "$IDENTITY" --certificate-oidc-issuer "$ISSUER" > /dev/null
+          mkdir -p sbom
+          for arch in amd64 arm64; do
+            d=$(docker buildx imagetools inspect --format '{{json .Manifest}}' "${REGISTRY_IMAGE}@${candidate}" \
+              | jq -r --arg a "$arch" '.manifests[] | select(.platform.architecture == $a) | .digest')
+            cosign verify-attestation --type cyclonedx "${REGISTRY_IMAGE}@${d}" \
+              --certificate-identity-regexp "$IDENTITY" --certificate-oidc-issuer "$ISSUER" \
+              | head -n1 | jq -r .payload | base64 -d | jq .predicate > "sbom/$arch.cdx.json"
+          done
+
+      - name: Install scanners
+        if: env.candidate != ''
+        run: scripts/ci/install-scanners.sh
+
+      - name: Scan SBOMs with today's databases
+        if: env.candidate != ''
+        run: |
+          for arch in amd64 arm64; do
+            scripts/ci/scan-sbom.sh "sbom/$arch.cdx.json" "report/$arch"
+          done
+
+      - name: Move stable
+        if: env.candidate != ''
+        run: |
+          docker buildx imagetools create \
+            --tag "${REGISTRY_IMAGE}:stable" \
+            --tag "${REGISTRY_IMAGE}:${DEBIAN_RELEASE}-minimal-stable" \
+            "${REGISTRY_IMAGE}@${candidate}"
+          echo "stable -> ${REGISTRY_IMAGE}@${candidate}" | tee -a "$GITHUB_STEP_SUMMARY"

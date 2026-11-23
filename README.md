@@ -23,7 +23,14 @@ See [docs/upstream.md](docs/upstream.md) for what was taken over and what was ch
 |---|---|
 | `ghcr.io/nordwerk42/base:13-minimal` | glibc, OpenSSL, CA certificates, tzdata. No shell, no package manager. User `53111:53111`, working directory `/home/nonroot`. |
 
-Tags: `13-minimal` (moves with every rebuild), `13-minimal-<debian-snapshot>` (for example `13-minimal-20261122T000000Z`) and `sha-<commit>`. `13` is the Debian release. Pin the digest in addition to the tag.
+| Tag | Moves | Meaning |
+|---|---|---|
+| `latest`, `13-minimal` | with every green build on `main` | newest image |
+| `stable`, `13-minimal-stable` | when an image was `latest` for 3 days and a fresh scan of its SBOM is clean, or at once by a manual run of `promote` (security fixes) | for production |
+| `13-minimal-<debian-snapshot>`, e.g. `13-minimal-20261122T000000Z` | never | Debian package state |
+| `sha-<commit>` | never | Git commit of this repository |
+
+`13` is the Debian release. Pin the digest in addition to the tag. The image `created` date is 1970-01-01 on purpose (reproducible build); its age is in the snapshot tag and in the Rekor timestamp of the signature.
 
 ## Verify
 

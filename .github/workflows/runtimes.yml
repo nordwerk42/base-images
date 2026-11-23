@@ -85,7 +85,9 @@ jobs:
       - name: Scan SBOM
         env:
           MIN_DEB_PACKAGES: ${{ matrix.target.image == 'static' && '0' || '1' }}
-        run: scripts/ci/scan-sbom.sh out/sbom.cdx.json out/scan
+        run: |
+          scripts/ci/scan-sbom.sh out/sbom.cdx.json out/scan
+          touch out/passed
 
       - name: Scan summary
         if: always()
@@ -104,7 +106,8 @@ jobs:
   publish:
     name: publish ${{ matrix.target.image }} ${{ matrix.target.version }}
     needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Each image line is published on its own: a failed scan of one line does not hold back the others.
+    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
@@ -130,15 +133,29 @@ jobs:
           pattern: ${{ matrix.target.image }}-${{ matrix.target.version }}-*
           path: out
 
+      - name: Check that both architectures passed
+        run: |
+          for arch in amd64 arm64; do
+            if [ ! -f "out/${IMAGE}-${VERSION}-${arch}/passed" ]; then
+              echo "::warning::${IMAGE} ${VERSION} ${arch} did not pass build, smoke test and scan; not published"
+              echo "ready=false" >> "$GITHUB_ENV"
+              exit 0
+            fi
+          done
+          echo "ready=true" >> "$GITHUB_ENV"
+
       - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+        if: env.ready == 'true'
 
       - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        if: env.ready == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push, sign and attach SBOM per architecture
+        if: env.ready == 'true'
         env:
           SHA: ${{ github.sha }}
         run: |
@@ -158,6 +175,7 @@ jobs:
           echo "ARCH_DIGESTS=${digests[*]}" >> "$GITHUB_ENV"
 
       - name: Create multi-arch manifest
+        if: env.ready == 'true'
         env:
           SHA: ${{ github.sha }}
         run: |
@@ -180,9 +198,11 @@ jobs:
           echo "${repo}@${digest} (${TAGS} ${full})" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Sign manifest
+        if: env.ready == 'true'
         run: cosign sign --yes "${REPO}@${digest}"
 
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        if: env.ready == 'true'
         with:
           subject-name: ${{ env.REPO }}
           subject-digest: ${{ env.digest }}

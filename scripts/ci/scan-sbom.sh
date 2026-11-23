@@ -17,17 +17,19 @@ for f in vex/*.json; do
   vex_grype+=(--vex "$f")
 done
 
+# MIN_DEB_PACKAGES=0 for images without Debian packages (static).
+min_deb=${MIN_DEB_PACKAGES:-1}
 packages=$(jq '[.components[]? | select((.purl // "") | startswith("pkg:deb/"))] | length' "$sbom")
 echo "SBOM: $packages Debian packages"
-if [ "$packages" -eq 0 ]; then
-  echo "SBOM lists no Debian packages, a scan would find nothing" >&2
+if [ "$packages" -lt "$min_deb" ]; then
+  echo "SBOM lists fewer than $min_deb Debian packages, a scan would find nothing" >&2
   exit 1
 fi
 
 trivy sbom --quiet --list-all-pkgs --format json --output "$out/trivy.json" "${vex_trivy[@]}" "$sbom"
 scanned=$(jq '[.Results[]?.Packages[]?] | length' "$out/trivy.json")
 echo "Trivy: $scanned packages scanned"
-if [ "$scanned" -eq 0 ]; then
+if [ "$scanned" -eq 0 ] && [ "$min_deb" -gt 0 ]; then
   echo "Trivy did not recognise the packages in the SBOM" >&2
   exit 1
 fi

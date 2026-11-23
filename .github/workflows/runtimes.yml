@@ -1,0 +1,189 @@
+name: runtimes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "45 4 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: runtimes-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+  DEBIAN_RELEASE: "13"
+
+jobs:
+  build:
+    name: ${{ matrix.target.image }} ${{ matrix.target.version }} (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+        target:
+          - { image: static, dir: images/static, attr: static, version: "0", runtime: "-", cpe: "-", smoke: "" }
+          - { image: python, dir: images/python3, attr: python3, version: "3.13", runtime: cpython, cpe: "cpe:2.3:a:python:python", smoke: "python3 /t/test.py" }
+          - { image: python, dir: images/python3, attr: python3, version: "3.14", runtime: cpython, cpe: "cpe:2.3:a:python:python", smoke: "python3 /t/test.py" }
+          - { image: nodejs, dir: images/nodejs, attr: nodejs, version: "24", runtime: nodejs, cpe: "cpe:2.3:a:nodejs:node.js", smoke: "node /t/test.js" }
+          - { image: nodejs, dir: images/nodejs, attr: nodejs, version: "26", runtime: nodejs, cpe: "cpe:2.3:a:nodejs:node.js", smoke: "node /t/test.js" }
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    permissions:
+      contents: read
+    env:
+      IMAGE: ${{ matrix.target.image }}
+      DIR: ${{ matrix.target.dir }}
+      ATTR: ${{ matrix.target.attr }}-${{ matrix.target.version }}-${{ matrix.arch }}
+      VERSION: ${{ matrix.target.version }}
+      ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+
+      - name: Build image and SBOM
+        run: |
+          nix build --print-build-logs --out-link image "./${DIR}#packages.$(nix eval --impure --raw --expr builtins.currentSystem).\"${ATTR}\""
+          nix build --print-build-logs --out-link sbom "./${DIR}#packages.$(nix eval --impure --raw --expr builtins.currentSystem).\"${ATTR}-sbom\""
+          mkdir -p out
+          cp -L image out/image.tar.gz
+          full=$(scripts/ci/prepare-sbom.sh sbom out/sbom.cdx.json "$DEBIAN_RELEASE" "${{ matrix.target.runtime }}" "${{ matrix.target.cpe }}")
+          echo "${full:-}" > out/full-version
+          snapshot=$(grep -ohE 'snapshot\.debian\.org/archive/debian(-security)?/[0-9]{8}T[0-9]{6}Z' "${DIR}"/config.*.json 2>/dev/null \
+            | grep -oE '[0-9]{8}T[0-9]{6}Z' | sort -u | tail -1 || true)
+          if [ -z "$snapshot" ]; then
+            snapshot=$(jq -r '.nodes.nixpkgs.locked.lastModified' "${DIR}/flake.lock" | xargs -I{} date -u -d @{} +%Y%m%dT%H%M%SZ)
+          fi
+          echo "$snapshot" > out/snapshot
+          echo "Version ${full:-$VERSION}, package state $snapshot"
+          jq -r '.components[] | "\(.name) \(.version)"' out/sbom.cdx.json | sort
+
+      - name: Smoke test
+        run: |
+          ref=$(docker load --quiet < out/image.tar.gz | sed -n 's/^Loaded image: //p' | tail -1)
+          echo "$ref" > out/ref
+          if [ -n "${{ matrix.target.smoke }}" ]; then
+            docker run --rm -v "$PWD/${DIR}/test:/t:ro" --entrypoint "" "$ref" ${{ matrix.target.smoke }}
+          fi
+          if docker run --rm --entrypoint /bin/sh "$ref" -c true 2>/dev/null; then
+            echo "image contains a shell" >&2
+            exit 1
+          fi
+          user=$(docker image inspect --format '{{.Config.User}}' "$ref")
+          echo "User: $user"
+          [ "$user" != "" ] && [ "$user" != "0" ] && [ "$user" != "root" ]
+
+      - name: Install scanners
+        run: scripts/ci/install-scanners.sh
+
+      - name: Scan SBOM
+        env:
+          MIN_DEB_PACKAGES: ${{ matrix.target.image == 'static' && '0' || '1' }}
+        run: scripts/ci/scan-sbom.sh out/sbom.cdx.json out/scan
+
+      - name: Scan summary
+        if: always()
+        run: |
+          if [ -f out/scan/summary.md ]; then
+            { echo "### ${IMAGE} ${VERSION} ${ARCH}"; cat out/scan/summary.md; echo; echo '```'; cat out/scan/grype.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: ${{ matrix.target.image }}-${{ matrix.target.version }}-${{ matrix.arch }}
+          path: out/
+          retention-days: 14
+
+  publish:
+    name: publish ${{ matrix.target.image }} ${{ matrix.target.version }}
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - { image: static, version: "0", tags: "latest" }
+          - { image: python, version: "3.13", tags: "3.13" }
+          - { image: python, version: "3.14", tags: "3.14 latest" }
+          - { image: nodejs, version: "24", tags: "24" }
+          - { image: nodejs, version: "26", tags: "26 latest" }
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    env:
+      IMAGE: ${{ matrix.target.image }}
+      VERSION: ${{ matrix.target.version }}
+      TAGS: ${{ matrix.target.tags }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: ${{ matrix.target.image }}-${{ matrix.target.version }}-*
+          path: out
+
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push, sign and attach SBOM per architecture
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          repo="${REGISTRY}/${IMAGE}"
+          digests=()
+          for arch in amd64 arm64; do
+            dir="out/${IMAGE}-${VERSION}-${arch}"
+            src=$(docker load --quiet < "$dir/image.tar.gz" | sed -n 's/^Loaded image: //p' | tail -1)
+            ref="${repo}:sha-${SHA::7}-${VERSION}-${arch}"
+            docker tag "$src" "$ref"
+            docker push --quiet "$ref"
+            digest=$(docker image inspect --format '{{index .RepoDigests 0}}' "$ref" | cut -d@ -f2)
+            cosign sign --yes "${repo}@${digest}"
+            cosign attest --yes --type cyclonedx --predicate "$dir/sbom.cdx.json" "${repo}@${digest}"
+            digests+=("${repo}@${digest}")
+          done
+          echo "ARCH_DIGESTS=${digests[*]}" >> "$GITHUB_ENV"
+
+      - name: Create multi-arch manifest
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          repo="${REGISTRY}/${IMAGE}"
+          full=$(cat "out/${IMAGE}-${VERSION}-amd64/full-version")
+          snapshot=$(cat "out/${IMAGE}-${VERSION}-amd64/snapshot")
+          args=()
+          for t in $TAGS; do args+=(--tag "${repo}:${t}"); done
+          if [ -n "$full" ]; then
+            args+=(--tag "${repo}:${full}" --tag "${repo}:${full}-${snapshot}" --tag "${repo}:${VERSION}-sha-${SHA::7}")
+          else
+            args+=(--tag "${repo}:${snapshot}" --tag "${repo}:sha-${SHA::7}")
+          fi
+          # shellcheck disable=SC2086
+          docker buildx imagetools create "${args[@]}" $ARCH_DIGESTS
+          first=${args[1]}
+          digest=$(docker buildx imagetools inspect --format '{{json .Manifest}}' "$first" | jq -r .digest)
+          echo "digest=$digest" >> "$GITHUB_ENV"
+          echo "REPO=$repo" >> "$GITHUB_ENV"
+          echo "${repo}@${digest} (${TAGS} ${full})" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Sign manifest
+        run: cosign sign --yes "${REPO}@${digest}"
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ env.REPO }}
+          subject-digest: ${{ env.digest }}
+          push-to-registry: true

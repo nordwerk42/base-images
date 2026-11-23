@@ -16,15 +16,30 @@ concurrency:
   group: promote
 
 env:
-  REGISTRY_IMAGE: ghcr.io/${{ github.repository_owner }}/base
-  DEBIAN_RELEASE: "13"
   MIN_AGE_DAYS: "3"
-  IDENTITY: ^https://github\.com/${{ github.repository }}/\.github/workflows/build\.yml@refs/heads/main$
   ISSUER: https://token.actions.githubusercontent.com
 
 jobs:
   promote:
+    name: promote ${{ matrix.target.package }}:${{ matrix.target.from }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - { package: base, from: latest, to: "stable 13-minimal-stable", workflow: build, min_deb: "1" }
+          - { package: static, from: latest, to: "stable", workflow: runtimes, min_deb: "0" }
+          - { package: python, from: "3.13", to: "3.13-stable", workflow: runtimes, min_deb: "1" }
+          - { package: python, from: "3.14", to: "3.14-stable stable", workflow: runtimes, min_deb: "1" }
+          - { package: nodejs, from: "24", to: "24-stable", workflow: runtimes, min_deb: "1" }
+          - { package: nodejs, from: "26", to: "26-stable stable", workflow: runtimes, min_deb: "1" }
     runs-on: ubuntu-24.04
+    env:
+      REGISTRY_IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.target.package }}
+      PACKAGE: ${{ matrix.target.package }}
+      FROM_TAG: ${{ matrix.target.from }}
+      TO_TAGS: ${{ matrix.target.to }}
+      MIN_DEB_PACKAGES: ${{ matrix.target.min_deb }}
+      IDENTITY: ^https://github\.com/${{ github.repository }}/\.github/workflows/${{ matrix.target.workflow }}\.yml@refs/heads/main$
     permissions:
       contents: read
       packages: write
@@ -47,17 +62,22 @@ jobs:
           NOW: ${{ inputs.now }}
         run: |
           digest_of() { docker buildx imagetools inspect --format '{{json .Manifest}}' "$1" | jq -r .digest; }
-          latest=$(digest_of "${REGISTRY_IMAGE}:latest")
-          stable=$(digest_of "${REGISTRY_IMAGE}:stable" 2>/dev/null || true)
-          echo "latest $latest, stable ${stable:-none}" | tee -a "$GITHUB_STEP_SUMMARY"
-          if [ "$latest" = "$stable" ]; then
-            echo "stable is already latest" | tee -a "$GITHUB_STEP_SUMMARY"
+          first_to=${TO_TAGS%% *}
+          latest=$(digest_of "${REGISTRY_IMAGE}:${FROM_TAG}" 2>/dev/null || true)
+          if [ -z "$latest" ]; then
+            echo "${REGISTRY_IMAGE}:${FROM_TAG} does not exist yet" | tee -a "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          created=$(gh api --paginate "/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/base/versions" \
+          stable=$(digest_of "${REGISTRY_IMAGE}:${first_to}" 2>/dev/null || true)
+          echo "${FROM_TAG} $latest, ${first_to} ${stable:-none}" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$latest" = "$stable" ]; then
+            echo "${first_to} is already ${FROM_TAG}" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          created=$(gh api --paginate "/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/${PACKAGE}/versions" \
             --jq ".[] | select(.name == \"$latest\") | .created_at")
           age=$(( ( $(date +%s) - $(date -d "$created" +%s) ) / 86400 ))
-          echo "latest published $created, $age days ago" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "${FROM_TAG} published $created, $age days ago" | tee -a "$GITHUB_STEP_SUMMARY"
           if [ "$NOW" != "true" ] && [ "$age" -lt "$MIN_AGE_DAYS" ]; then
             echo "younger than $MIN_AGE_DAYS days, not promoted" | tee -a "$GITHUB_STEP_SUMMARY"
             exit 0
@@ -92,8 +112,7 @@ jobs:
       - name: Move stable
         if: env.candidate != ''
         run: |
-          docker buildx imagetools create \
-            --tag "${REGISTRY_IMAGE}:stable" \
-            --tag "${REGISTRY_IMAGE}:${DEBIAN_RELEASE}-minimal-stable" \
-            "${REGISTRY_IMAGE}@${candidate}"
-          echo "stable -> ${REGISTRY_IMAGE}@${candidate}" | tee -a "$GITHUB_STEP_SUMMARY"
+          args=()
+          for t in $TO_TAGS; do args+=(--tag "${REGISTRY_IMAGE}:${t}"); done
+          docker buildx imagetools create "${args[@]}" "${REGISTRY_IMAGE}@${candidate}"
+          echo "${TO_TAGS} -> ${REGISTRY_IMAGE}@${candidate}" | tee -a "$GITHUB_STEP_SUMMARY"

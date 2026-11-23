@@ -22,6 +22,9 @@ See [docs/upstream.md](docs/upstream.md) for what was taken over and what was ch
 | Image | Content |
 |---|---|
 | `ghcr.io/nordwerk42/base:13-minimal` | glibc, OpenSSL, CA certificates, tzdata. No shell, no package manager. User `53111:53111`, working directory `/home/nonroot`. |
+| `ghcr.io/nordwerk42/static:latest` | CA certificates and tzdata only, no libc. For static binaries (Go, Rust). |
+| `ghcr.io/nordwerk42/python:3.13`, `:3.14` | CPython from the upstream release on the Debian 13 root filesystem. No shell, no pip. |
+| `ghcr.io/nordwerk42/nodejs:24`, `:26` | Node.js from the upstream release on the Debian 13 root filesystem. No shell, no npm. |
 
 | Tag | Moves | Meaning |
 |---|---|---|
@@ -29,6 +32,8 @@ See [docs/upstream.md](docs/upstream.md) for what was taken over and what was ch
 | `stable`, `13-minimal-stable` | when an image was `latest` for 3 days and a fresh scan of its SBOM is clean, or at once by a manual run of `promote` (security fixes) | for production |
 | `13-minimal-<debian-snapshot>`, e.g. `13-minimal-20261122T000000Z` | never | Debian package state |
 | `sha-<commit>` | never | Git commit of this repository |
+
+Runtime images use the runtime line instead of `13-minimal`: `python:3.13` moves like `latest`, `python:3.13-stable` like `stable`, `python:3.13.18` follows the patch release and `python:3.13.18-<debian-snapshot>` never moves. `python:latest` and `python:stable` are the newest line (3.14), likewise for `nodejs` (26).
 
 `13` is the Debian release. Pin the digest in addition to the tag. The image `created` date is 1970-01-01 on purpose (reproducible build); its age is in the snapshot tag and in the Rekor timestamp of the signature.
 
@@ -47,6 +52,8 @@ cosign verify-attestation "$IMAGE" --type cyclonedx \
 
 gh attestation verify "oci://$IMAGE" --repo nordwerk42/base-images
 ```
+
+`base` is signed by `build.yml`. `static`, `python` and `nodejs` are signed by `runtimes.yml`: use `runtimes\.yml` in the identity for them.
 
 ## Build locally
 

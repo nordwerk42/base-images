@@ -1,0 +1,23 @@
+# Builder stage
+FROM node:26 AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci --production
+
+# Final runtime stage. The minimal image has no npm: dependencies are installed
+# in the builder above and copied in, and the app is started with node itself.
+FROM registry.opencode.de/oci-community/images/zendis/nodejs:26-minimal
+
+WORKDIR /app
+
+# Copy application code
+COPY --from=builder --chown=53111:53111 /app /app
+COPY --chown=53111:53111 app.js /app/app.js
+
+
+EXPOSE 8080
+
+CMD ["node", "/app/app.js"]

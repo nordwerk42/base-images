@@ -6,7 +6,7 @@ COPY . .
 RUN go build -o myapp
 
 
-FROM registry.opencode.de/open-code/oci/base:latest
+FROM registry.opencode.de/open-code/oci/base:latest@sha256:f7659609dc24079b712482b8b5e98c4d96db5ee1e9fe5bd8e85b0b36ecfd360d
 
 COPY --from=builder --chown=53111:53111 /app/myapp /myapp
 
